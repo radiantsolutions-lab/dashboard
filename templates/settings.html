@@ -106,7 +106,7 @@
                         <p class="text-gray-600 text-sm">Manage your MyInvois API credentials</p>
                     </div>
                 </div>
-                <button class="btn-primary" onclick="document.getElementById('add-account-form').scrollIntoView({behavior: 'smooth'})">
+                <button class="btn-primary" id="show-add-form">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -159,64 +159,76 @@
     </div>
 
     <!-- Add Account Form -->
-    <div class="card p-6" id="add-account-form">
-        <div class="flex items-center mb-6">
-            <div class="icon-container w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-200 mr-4">
-                <svg class="w-5 h-5 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
+    <div class="card p-6 hidden" id="add-account-form">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center">
+                <div class="icon-container w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-200 mr-4">
+                    <svg class="w-5 h-5 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-900">Add New Account</h2>
+                    <p class="text-gray-600 text-sm">Configure a new MyInvois API connection</p>
+                </div>
             </div>
-            <div>
-                <h2 class="text-2xl font-semibold text-gray-900">Add New Account</h2>
-                <p class="text-gray-600 text-sm">Configure a new MyInvois API connection</p>
-            </div>
+            <button type="button" class="text-gray-400 hover:text-gray-600 text-xl" id="close-add-form" aria-label="Close add account form">&times;</button>
         </div>
 
-        <form method="POST" id="add-account-form-element" class="space-y-6">
+        <form method="POST" id="add-account-form-element" class="space-y-8">
             <input type="hidden" name="action" value="add_account">
 
-            <!-- Basic Info -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
-                    <input type="text" id="name" name="name" class="form-input w-full" required aria-label="Account name" placeholder="e.g., Production Account">
-                </div>
-                <div>
-                    <label for="on_behalf_of" class="block text-sm font-medium text-gray-700 mb-1">On Behalf Of</label>
-                    <input type="text" id="on_behalf_of" name="on_behalf_of" class="form-input w-full" aria-label="On behalf of" placeholder="Optional">
-                </div>
-            </div>
-
-            <!-- Credentials -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
-                    <input type="text" id="client_id" name="client_id" class="form-input w-full font-mono text-sm" required aria-label="Client ID" placeholder="Your client ID">
-                </div>
-                <div>
-                    <label for="client_secret" class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
-                    <input type="password" id="client_secret" name="client_secret" class="form-input w-full font-mono text-sm" required aria-label="Client secret" placeholder="Your client secret">
+            <!-- Account Information -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Account Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+                        <input type="text" id="name" name="name" class="form-input w-full" required aria-label="Account name" placeholder="e.g., Production Account">
+                    </div>
+                    <div>
+                        <label for="on_behalf_of" class="block text-sm font-medium text-gray-700 mb-1">On Behalf Of</label>
+                        <input type="text" id="on_behalf_of" name="on_behalf_of" class="form-input w-full" aria-label="On behalf of" placeholder="Optional">
+                    </div>
                 </div>
             </div>
 
-            <!-- URLs -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <label for="token_url" class="block text-sm font-medium text-gray-700 mb-1">Token URL</label>
-                    <input type="text" id="token_url" name="token_url" class="form-input w-full" placeholder="https://..." required aria-label="Token URL">
-                </div>
-                <div>
-                    <label for="scope" class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
-                    <input type="text" id="scope" name="scope" class="form-input w-full" placeholder="InvoicingAPI" aria-label="Scope">
+            <!-- API Credentials -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">API Credentials</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
+                        <input type="text" id="client_id" name="client_id" class="form-input w-full font-mono text-sm" required aria-label="Client ID" placeholder="Your client ID from MyInvois">
+                    </div>
+                    <div>
+                        <label for="client_secret" class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
+                        <input type="password" id="client_secret" name="client_secret" class="form-input w-full font-mono text-sm" required aria-label="Client secret" placeholder="Your client secret from MyInvois">
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <label for="base_url" class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
-                <input type="text" id="base_url" name="base_url" class="form-input w-full" placeholder="https://..." required aria-label="Base URL">
+            <!-- API Configuration -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">API Configuration</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label for="token_url" class="block text-sm font-medium text-gray-700 mb-1">Token URL</label>
+                        <input type="text" id="token_url" name="token_url" class="form-input w-full" placeholder="https://preprod-api.myinvois.hasil.gov.my/..." required aria-label="Token URL">
+                    </div>
+                    <div>
+                        <label for="base_url" class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
+                        <input type="text" id="base_url" name="base_url" class="form-input w-full" placeholder="https://preprod-api.myinvois.hasil.gov.my/..." required aria-label="Base URL">
+                    </div>
+                    <div>
+                        <label for="scope" class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
+                        <input type="text" id="scope" name="scope" class="form-input w-full" placeholder="InvoicingAPI" aria-label="Scope" value="InvoicingAPI">
+                    </div>
+                </div>
             </div>
 
-            <div class="flex justify-end">
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button type="button" class="btn-secondary" id="cancel-add-form" aria-label="Cancel adding account">Cancel</button>
                 <button type="submit" class="btn-primary" aria-label="Add account">Add Account</button>
             </div>
         </form>
@@ -287,6 +299,56 @@
 </div>
 <script>
     $(document).ready(function() {
+        // Toggle Add Account form
+        $('#show-add-form').click(function() {
+            const $form = $('#add-account-form');
+            const $button = $(this);
+
+            if ($form.hasClass('hidden')) {
+                // Show form
+                $form.removeClass('hidden').hide().slideDown(300, function() {
+                    // Update button text and icon
+                    $button.html(`
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Cancel Add Account
+                    `);
+                    // Scroll to form
+                    $form[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            } else {
+                // Hide form
+                $form.slideUp(300, function() {
+                    $form.addClass('hidden');
+                    // Reset button text and icon
+                    $button.html(`
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add Account
+                    `);
+                });
+            }
+        });
+
+        // Close Add Account form
+        $('#close-add-form, #cancel-add-form').click(function() {
+            const $form = $('#add-account-form');
+            const $button = $('#show-add-form');
+
+            $form.slideUp(300, function() {
+                $form.addClass('hidden');
+                // Reset button text and icon
+                $button.html(`
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Add Account
+                `);
+            });
+        });
+
         // Show modal when Edit button is clicked
         $('.edit-account-btn').click(function() {
             const accountId = $(this).data('account-id');
