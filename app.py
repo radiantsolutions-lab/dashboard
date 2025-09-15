@@ -711,6 +711,7 @@ def dashboard():
 
     # Table data with selected columns only (UI-friendly display names)
     column_mapping = {
+        'Date': 'date_time_validated',
         'Invoice': 'internal_id',
         'UUID': 'uuid',
         'Status': 'status',
@@ -725,7 +726,11 @@ def dashboard():
         for display_col, db_col in column_mapping.items():
             value = getattr(doc, db_col, None)
             if db_col in ['date_time_received', 'date_time_validated'] and value:
-                value = value.strftime('%Y-%m-%d %H:%M:%S')
+                # For the Date column, show only date part (YYYY-MM-DD)
+                if display_col == 'Date':
+                    value = value.strftime('%Y-%m-%d')
+                else:
+                    value = value.strftime('%Y-%m-%d %H:%M:%S')
             row[display_col] = value or 'N/A'
         table_data.append(row)
 
