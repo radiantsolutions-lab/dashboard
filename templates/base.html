@@ -577,6 +577,12 @@
             color: #374151 !important;
             cursor: pointer !important;
             transition: all 0.2s !important;
+            flex: none !important;
+            width: auto !important;
+            min-width: auto !important;
+            max-width: none !important;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
         }
 
         .paginate_button:hover {
@@ -593,6 +599,30 @@
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
             color: #d1d5db !important;
             cursor: not-allowed !important;
+        }
+
+        /* Ensure pagination container doesn't stretch buttons */
+        .dataTables_wrapper .dataTables_paginate {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            display: inline-block !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Override Bootstrap flexbox pagination */
+        .dataTables_wrapper .dataTables_paginate ul {
+            display: inline-flex !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate li {
+            flex: none !important;
         }
 
         /* Override Bootstrap table styles with Tailwind */
