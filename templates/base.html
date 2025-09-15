@@ -19,7 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         :root {
-            /* Modern Apple/x.ai inspired color palette */
+            /* Modern Apple/x.ai inspired color palette - LIGHT MODE */
             --apple-black: #000000;
             --apple-dark-grey: #1d1d1f;
             --apple-grey: #86868b;
@@ -32,6 +32,18 @@
             --apple-green: #34c759;
             --apple-yellow: #ffcc00;
             --apple-orange: #ff9500;
+
+            /* Theme colors - LIGHT MODE */
+            --bg-primary: var(--apple-off-white);
+            --bg-secondary: var(--apple-white);
+            --bg-tertiary: var(--apple-light-grey);
+            --text-primary: var(--apple-black);
+            --text-secondary: var(--apple-dark-grey);
+            --text-muted: var(--apple-grey);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --card-bg: var(--apple-white);
+            --nav-bg: var(--apple-white);
+            --input-bg: var(--apple-white);
 
             /* Modern shadows and effects */
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -46,34 +58,58 @@
             --radius-xl: 20px;
         }
 
+        /* DARK MODE THEME */
+        [data-theme="dark"] {
+            /* Theme colors - DARK MODE */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #e5e5e5;
+            --text-muted: #a3a3a3;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --card-bg: #1a1a1a;
+            --nav-bg: #1a1a1a;
+            --input-bg: #2a2a2a;
+
+            /* Dark mode shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+        }
+
         body {
-            background: var(--apple-off-white);
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: var(--apple-dark-grey);
+            color: var(--text-secondary);
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.8);
+            background: var(--nav-bg);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--border-color);
             box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
             z-index: 50;
+            transition: all 0.3s ease;
         }
 
         .navbar h2 {
             font-weight: 600;
-            color: var(--apple-dark-grey);
+            color: var(--text-primary);
             font-size: 18px;
+            transition: color 0.3s ease;
         }
 
         .navbar a {
-            color: var(--apple-grey);
+            color: var(--text-secondary);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500;
             font-size: 14px;
@@ -82,8 +118,8 @@
         }
 
         .navbar a:hover {
-            background: var(--apple-light-grey);
-            color: var(--apple-dark-grey);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             transform: translateY(-1px);
         }
 
@@ -98,8 +134,8 @@
         }
 
         .card {
-            background: var(--apple-white);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -114,7 +150,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
         }
 
         .card:hover {
@@ -335,33 +371,33 @@
 
         /* Form styling */
         .form-input {
-            background: var(--notion-white);
-            border: 1px solid var(--notion-light-grey);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 8px 12px;
             font-size: 14px;
-            color: var(--notion-dark-grey);
-            transition: border-color 0.2s ease;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
         }
 
         .form-input:focus {
-            border-color: var(--notion-blue);
+            border-color: var(--apple-blue);
             outline: none;
             box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
         }
 
         .form-select {
-            background: var(--notion-white);
-            border: 1px solid var(--notion-light-grey);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 8px 12px;
             font-size: 14px;
-            color: var(--notion-dark-grey);
-            transition: border-color 0.2s ease;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
         }
 
         .form-select:focus {
-            border-color: var(--notion-blue);
+            border-color: var(--apple-blue);
             outline: none;
             box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
         }
@@ -739,7 +775,19 @@
                     </svg>
                     <span>Sync Data</span>
                 </a>
-                <div class="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600">
+                <!-- Dark Mode Toggle -->
+                <button id="theme-toggle" class="inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors" aria-label="Toggle theme">
+                    <!-- Light mode icon -->
+                    <svg id="theme-icon-light" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <!-- Dark mode icon -->
+                    <svg id="theme-icon-dark" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <div class="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
@@ -826,6 +874,44 @@
                     $(this).remove();
                 });
             }, 5000);
+
+            // Dark Mode Toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const lightIcon = document.getElementById('theme-icon-light');
+            const darkIcon = document.getElementById('theme-icon-dark');
+
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+
+            // Apply the current theme
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            }
+
+            // Toggle theme on button click
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+
+                if (currentTheme === 'dark') {
+                    // Switch to light mode
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    lightIcon.classList.remove('hidden');
+                    darkIcon.classList.add('hidden');
+                } else {
+                    // Switch to dark mode
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                }
+            });
         });
     </script>
 </body>
