@@ -106,11 +106,11 @@
                         <p class="text-gray-600 text-sm">Manage your MyInvois API credentials</p>
                     </div>
                 </div>
-                <button class="btn-primary" id="show-add-form">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="btn-primary inline-flex items-center" id="show-add-form">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
-                    Add Account
+                    Add account
                 </button>
             </div>
 
@@ -309,10 +309,10 @@
                 $form.removeClass('hidden').hide().slideDown(300, function() {
                     // Update button text and icon
                     $button.html(`
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
-                        Cancel Add Account
+                        Cancel add account
                     `);
                     // Scroll to form
                     $form[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -323,10 +323,10 @@
                     $form.addClass('hidden');
                     // Reset button text and icon
                     $button.html(`
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
-                        Add Account
+                        Add account
                     `);
                 });
             }
@@ -341,10 +341,10 @@
                 $form.addClass('hidden');
                 // Reset button text and icon
                 $button.html(`
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
-                    Add Account
+                    Add account
                 `);
             });
         });
