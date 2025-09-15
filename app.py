@@ -362,12 +362,22 @@ def sync():
     logger.info("Starting sync process")
     settings = load_settings()
     if settings is None:
+        logger.error("Failed to load settings")
         return render_template('500.html', error="Failed to load settings."), 500
-    if not settings['active_account']:
+
+    logger.info(f"Active account from settings: '{settings.get('active_account')}'")
+    logger.info(f"Available accounts: {[acc.get('name') for acc in settings.get('accounts', [])]}")
+
+    if not settings.get('active_account'):
+        logger.error("No active account selected")
         return render_template('500.html', error="No active account selected."), 400
-    acc = next((a for a in settings['accounts'] if a['name'] == settings['active_account']), None)
+
+    acc = next((a for a in settings.get('accounts', []) if a.get('name') == settings['active_account']), None)
     if not acc:
+        logger.error(f"Active account '{settings['active_account']}' not found in accounts list")
         return render_template('500.html', error="Active account not found."), 400
+
+    logger.info(f"Using account: {acc.get('name')}")
     try:
         token = get_token(acc)
     except Exception as e:
@@ -467,7 +477,7 @@ def dashboard():
         return render_template('dashboard.html', totals=totals, table_data=table_data,
                               available_columns=available_columns, status_options=status_options,
                               date_options=date_options, status_filter='', date_filter='',
-                              from_date='', to_date='', active_account='No Active Account')
+                              from_date='', to_date='', active_account=settings.get('active_account', 'No Active Account'))
 
     logger.info(f"DataFrame columns: {df.columns.tolist()}")
     
