@@ -2,10 +2,6 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 py-12">
-    <div class="text-center mb-16">
-        <h1 class="text-5xl font-bold theme-text-primary mb-4 tracking-tight">E-Invoice Dashboard</h1>
-        <p class="text-xl theme-text-muted max-w-2xl mx-auto">Active Account: <span class="font-semibold theme-text-primary">{{ active_account }}</span></p>
-    </div>
 
     <!-- Filters Section -->
     <div class="card mb-12 p-8 filter-section hidden">
@@ -49,10 +45,6 @@
 
     <!-- Summary Statistics -->
     <div class="mb-12">
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold theme-text-primary mb-2">Document Overview</h2>
-            <p class="theme-text-muted">Real-time statistics of your e-invoice documents</p>
-        </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
         <div class="stats-card">
             <div class="flex items-center justify-between mb-4">
