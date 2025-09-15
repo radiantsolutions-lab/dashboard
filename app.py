@@ -293,12 +293,47 @@ def debug_settings():
         return jsonify({
             "settings_loaded": settings is not None,
             "accounts_count": len(settings.get('accounts', [])) if settings else 0,
-            "accounts": [{"name": acc.get('name')} for acc in settings.get('accounts', [])] if settings else [],
+            "accounts": [{"name": acc.get('name'), "has_client_id": bool(acc.get('client_id')), "has_client_secret": bool(acc.get('client_secret')), "has_token_url": bool(acc.get('token_url')), "has_base_url": bool(acc.get('base_url'))} for acc in settings.get('accounts', [])] if settings else [],
             "active_account": settings.get('active_account') if settings else None,
             "defaults": settings.get('defaults') if settings else {}
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/debug-sync')
+@login_required
+def debug_sync():
+    """Debug endpoint to test sync authentication without running full sync"""
+    try:
+        settings = load_settings()
+        if not settings or not settings.get('active_account'):
+            return jsonify({"error": "No active account selected"}), 400
+
+        acc = next((a for a in settings.get('accounts', []) if a.get('name') == settings['active_account']), None)
+        if not acc:
+            return jsonify({"error": f"Active account '{settings['active_account']}' not found"}), 400
+
+        # Test authentication
+        try:
+            token = get_token(acc)
+            return jsonify({
+                "status": "success",
+                "account": acc.get('name'),
+                "authentication": "successful",
+                "token_received": bool(token),
+                "ready_for_sync": True
+            })
+        except Exception as e:
+            return jsonify({
+                "status": "error",
+                "account": acc.get('name'),
+                "authentication": "failed",
+                "error": str(e),
+                "ready_for_sync": False
+            }), 500
+
+    except Exception as e:
+        return jsonify({"error": f"Debug sync failed: {str(e)}"}), 500
 
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
