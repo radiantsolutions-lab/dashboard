@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="text-center mb-16">
+        <h1 class="text-5xl font-bold text-gray-900 mb-4 tracking-tight">E-Invoice Dashboard</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Active Account: <span class="font-semibold text-gray-900">{{ active_account }}</span></p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="card mb-12 p-8 filter-section hidden">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">Filter Documents</h2>
+            <p class="text-gray-600">Narrow down your invoice results</p>
+        </div>
+        <form method="POST" id="filter-form" class="flex flex-col lg:flex-row gap-6 items-end justify-center">
+            <div class="flex-1 max-w-xs">
+                <label for="status_filter" class="block text-sm font-medium text-gray-700 mb-2">Document Status</label>
+                <select name="status_filter" id="status_filter" class="form-select w-full text-center" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    {% for status in status_options %}
+                    <option value="{{ status }}" {% if status == status_filter %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-1 max-w-xs">
+                <label for="date_filter" class="block text-sm font-medium text-gray-700 mb-2">Submission Date</label>
+                <select name="date_filter" id="date_filter" class="form-select w-full text-center" aria-label="Filter by date">
+                    <option value="">All Dates</option>
+                    {% for date in date_options %}
+                    <option value="{{ date }}" {% if date == date_filter %}selected{% endif %}>{{ date }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-1 max-w-xs">
+                <label for="from_date" class="block text-sm font-medium text-gray-700 mb-2">From Submission Date</label>
+                <input type="date" name="from_date" id="from_date" class="form-input w-full" value="{{ from_date }}" aria-label="Filter from submission date">
+            </div>
+            <div class="flex-1 max-w-xs">
+                <label for="to_date" class="block text-sm font-medium text-gray-700 mb-2">To Submission Date</label>
+                <input type="date" name="to_date" id="to_date" class="form-input w-full" value="{{ to_date }}" aria-label="Filter to submission date">
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="btn-primary" aria-label="Apply filters">Apply Filters</button>
+                <button type="button" id="reset-filters" class="btn-secondary" aria-label="Reset filters">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="mb-12">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Document Overview</h2>
+            <p class="text-gray-600">Real-time statistics of your e-invoice documents</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div class="stats-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="icon-container w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200">
+                    <svg class="w-6 h-6 text-blue-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900">{{ totals.total }}</h3>
+            <p class="text-gray-600">Total Documents</p>
+        </div>
+        <div class="stats-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="icon-container w-12 h-12 bg-gradient-to-br from-green-100 to-green-200">
+                    <svg class="w-6 h-6 text-green-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-green-600">{{ totals.valid }}</h3>
+            <p class="text-gray-600">Valid</p>
+        </div>
+        <div class="stats-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="icon-container w-12 h-12 bg-gradient-to-br from-red-100 to-red-200">
+                    <svg class="w-6 h-6 text-red-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-red-600">{{ totals.invalid }}</h3>
+            <p class="text-gray-600">Invalid</p>
+        </div>
+        <div class="stats-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="icon-container w-12 h-12 bg-gradient-to-br from-yellow-100 to-yellow-200">
+                    <svg class="w-6 h-6 text-yellow-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-yellow-600">{{ totals.submitted }}</h3>
+            <p class="text-gray-600">Submitted</p>
+        </div>
+        <div class="stats-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="icon-container w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200">
+                    <svg class="w-6 h-6 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M9,9V15H15V9H9Z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-600">{{ totals.cancelled }}</h3>
+            <p class="text-gray-600">Cancelled</p>
+        </div>
+    </div>
+
+    <!-- Documents Table -->
+    <div class="card p-8" style="margin-top: 4rem;">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Document Records</h2>
+            <p class="text-gray-600">Detailed view of all your e-invoice documents</p>
+        </div>
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="dataTables_length custom flex items-center">
+                    <label class="text-sm font-medium text-gray-700 mr-3">Show entries:</label>
+                    <select name="length" class="form-select">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="dataTables_filter custom flex items-center">
+                    <label class="text-sm font-medium text-gray-700 mr-3">Search:</label>
+                    <input type="search" class="form-input" placeholder="Search documents...">
+                </div>
+            </div>
+            <button id="export-csv" class="btn-secondary flex items-center gap-2" title="Export to CSV" aria-label="Export table to CSV">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Export CSV
+            </button>
+        </div>
+        <div class="relative">
+            <div id="table-loading" class="table-loading-spinner"></div>
+            <div class="overflow-x-auto">
+                <table id="docsTable" class="w-full">
+                    <thead>
+                        <tr>
+                            {% for col in available_columns %}
+                            <th class="text-left font-medium">{{ col|title }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table_data %}
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            {% for col in available_columns %}
+                            <td>
+                                {% if col == 'uuid' %}
+                                <a href="/detail/{{ row[col] }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium" aria-label="View details for {{ row[col] }}">{{ row[col] }}</a>
+                                {% elif col == 'status' %}
+                                <span class="status-badge status-{{ row[col]|lower }}">
+                                    {% if row[col]|lower == 'valid' %}
+                                        <svg class="status-icon" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                                        </svg>
+                                    {% elif row[col]|lower == 'invalid' %}
+                                        <svg class="status-icon" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/>
+                                        </svg>
+                                    {% elif row[col]|lower == 'submitted' %}
+                                        <svg class="status-icon" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                                        </svg>
+                                    {% elif row[col]|lower == 'cancelled' %}
+                                        <svg class="status-icon" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M9,9V15H15V9H9Z"/>
+                                        </svg>
+                                    {% endif %}
+                                    {{ row[col] }}
+                                </span>
+                                {% else %}
+                                {{ row[col] | default('N/A') }}
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Filter toggle functionality
+    $('#filter-toggle').click(function() {
+        const $filterSection = $('.filter-section');
+        const $icon = $(this).find('svg');
+        const $button = $(this);
+
+        if ($filterSection.hasClass('hidden')) {
+            // Show filter section
+            $filterSection.removeClass('hidden').hide().slideDown(300, function() {
+                // Update icon to indicate filters are open (X/close icon)
+                $icon.html('<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>');
+            });
+            // Update button text and add active class
+            $button.find('span').text('Hide Filters');
+            $button.addClass('active');
+        } else {
+            // Hide filter section
+            $filterSection.slideUp(300, function() {
+                $filterSection.addClass('hidden');
+                // Reset icon (filter/funnel icon)
+                $icon.html('<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>');
+            });
+            // Update button text and remove active class
+            $button.find('span').text('Filters');
+            $button.removeClass('active');
+        }
+    });
+
+    // Initialize DataTable
+    const dataTable = $('#docsTable').DataTable({
+        responsive: true,
+        pageLength: 10,
+        order: [[0, 'desc']],
+        columnDefs: [
+            { targets: '_all', className: 'px-4 py-2 text-sm' }
+        ],
+        language: {
+            lengthMenu: "Show _MENU_"
+        },
+        dom: 't<"dataTables_paginate"p>' // Only table and pagination
+    });
+
+    // Bind custom controls to DataTable
+    $('.dataTables_length.custom select').on('change', function() {
+        dataTable.page.len($(this).val()).draw();
+    });
+    $('.dataTables_filter.custom input').on('input', function() {
+        dataTable.search($(this).val()).draw();
+    });
+
+    // Export to CSV
+    $('#export-csv').click(function() {
+        const statusFilter = $('#status_filter').val();
+        const dateFilter = $('#date_filter').val();
+        $.ajax({
+            url: '/export_csv',
+            method: 'POST',
+            data: { status_filter: statusFilter, date_filter: dateFilter },
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(data) {
+                const a = document.createElement('a');
+                const url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = 'documents_export.csv';
+                document.body.append(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                Toastify({
+                    text: "Table exported to CSV successfully!",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#10B981",
+                    className: "toastify-success"
+                }).showToast();
+            },
+            error: function(xhr) {
+                console.error('CSV export error:', xhr);
+                const errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Unknown error';
+                Toastify({
+                    text: "Failed to export table to CSV: " + errorMessage,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#EF4444",
+                    className: "toastify-error"
+                }).showToast();
+            }
+        });
+    });
+
+    // Reset filters
+    $('#reset-filters').click(function() {
+        $('#status_filter').val('');
+        $('#date_filter').val('');
+        $('#filter-form').submit();
+    });
+
+    // Show loading spinner during filter
+    $('#filter-form').submit(function() {
+        $('#table-loading').show();
+        setTimeout(function() {
+            $('#table-loading').hide();
+        }, 1000); // Adjust timeout as needed
+    });
+});
+</script>
+{% endblock %}

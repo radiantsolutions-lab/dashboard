@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.tailwindcss.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.tailwindcss.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        :root {
+            /* Modern Apple/x.ai inspired color palette */
+            --apple-black: #000000;
+            --apple-dark-grey: #1d1d1f;
+            --apple-grey: #86868b;
+            --apple-light-grey: #f5f5f7;
+            --apple-off-white: #fbfbfd;
+            --apple-white: #ffffff;
+            --apple-blue: #007aff;
+            --apple-blue-light: #2997ff;
+            --apple-red: #ff3b30;
+            --apple-green: #34c759;
+            --apple-yellow: #ffcc00;
+            --apple-orange: #ff9500;
+
+            /* Modern shadows and effects */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            /* Modern border radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+        }
+
+        body {
+            background: var(--apple-off-white);
+            min-height: 100vh;
+            color: var(--apple-dark-grey);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .navbar h2 {
+            font-weight: 600;
+            color: var(--apple-dark-grey);
+            font-size: 18px;
+        }
+
+        .navbar a {
+            color: var(--apple-grey);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: var(--radius-md);
+            padding: 8px 12px;
+        }
+
+        .navbar a:hover {
+            background: var(--apple-light-grey);
+            color: var(--apple-dark-grey);
+            transform: translateY(-1px);
+        }
+
+        /* Filter toggle active state */
+        #filter-toggle.active {
+            background: var(--apple-blue);
+            color: var(--apple-white);
+        }
+
+        #filter-toggle.active:hover {
+            background: var(--apple-blue-light);
+        }
+
+        .card {
+            background: var(--apple-white);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+
+        .loading-spinner {
+            display: none;
+            border: 2px solid var(--notion-light-grey);
+            border-top: 2px solid var(--notion-blue);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        .table-loading-spinner {
+            display: none;
+            border: 2px solid var(--notion-light-grey);
+            border-top: 2px solid var(--notion-blue);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modern DataTable styling */
+        #docsTable {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #docsTable td, #docsTable th {
+            font-size: 12px;
+            border-bottom: 1px solid var(--notion-light-grey);
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        #docsTable th {
+            background: var(--notion-white);
+            color: var(--notion-grey);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            text-transform: none;
+            border-top: 1px solid var(--notion-light-grey);
+        }
+
+        #docsTable tr:hover {
+            background-color: var(--notion-off-white);
+        }
+
+        /* Status badges with crisp icons */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-valid {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            box-shadow: 0 1px 2px rgba(21, 87, 36, 0.1);
+        }
+
+        .status-invalid {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            box-shadow: 0 1px 2px rgba(114, 28, 36, 0.1);
+        }
+
+        .status-submitted {
+            background: linear-gradient(135deg, #fff3cd 0%, #fce4a3 100%);
+            color: #856404;
+            box-shadow: 0 1px 2px rgba(133, 100, 4, 0.1);
+        }
+
+        .status-cancelled {
+            background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+            color: #383d41;
+            box-shadow: 0 1px 2px rgba(56, 61, 65, 0.1);
+        }
+
+        .status-icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .status-icon svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        /* Hide default DataTable controls */
+        .dataTables_wrapper .dataTables_length:not(.custom),
+        .dataTables_wrapper .dataTables_filter:not(.custom) {
+            display: none !important;
+        }
+
+        /* Style custom DataTable controls */
+        .dataTables_wrapper .dataTables_length.custom,
+        .dataTables_wrapper .dataTables_filter.custom {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_length.custom label,
+        .dataTables_wrapper .dataTables_filter.custom label {
+            margin-right: 0.5rem;
+            font-size: 14px;
+            color: var(--notion-grey);
+            font-weight: 500;
+        }
+
+        .dataTables_wrapper .dataTables_length.custom select,
+        .dataTables_wrapper .dataTables_filter.custom input {
+            background-color: var(--notion-white);
+            border: 1px solid var(--notion-light-grey);
+            color: var(--notion-dark-grey);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s ease;
+        }
+
+        .dataTables_wrapper .dataTables_length.custom select:focus,
+        .dataTables_wrapper .dataTables_filter.custom input:focus {
+            border-color: var(--notion-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background-color: var(--notion-white);
+            border: 1px solid var(--notion-light-grey);
+            color: var(--notion-grey) !important;
+            border-radius: 6px;
+            margin: 0 2px;
+            padding: 6px 12px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: var(--notion-light-grey);
+            border-color: var(--notion-grey);
+            color: var(--notion-dark-grey) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background-color: var(--notion-blue);
+            border-color: var(--notion-blue);
+            color: var(--notion-white) !important;
+        }
+
+        /* Icon styling */
+        .icon-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .icon-button:hover {
+            background-color: var(--notion-light-grey);
+            transform: translateY(-1px);
+        }
+
+        .icon-button svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        /* Icon containers for cards */
+        .icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-container svg {
+            display: block;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Form styling */
+        .form-input {
+            background: var(--notion-white);
+            border: 1px solid var(--notion-light-grey);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--notion-dark-grey);
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--notion-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+        }
+
+        .form-select {
+            background: var(--notion-white);
+            border: 1px solid var(--notion-light-grey);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--notion-dark-grey);
+            transition: border-color 0.2s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--notion-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+        }
+
+        /* Modern Apple-style button styling */
+        .btn-primary {
+            background: var(--apple-blue);
+            color: var(--apple-white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--apple-blue-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--apple-dark-grey);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md);
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-secondary:hover {
+            background: var(--apple-light-grey);
+            border-color: rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--apple-red);
+            color: var(--apple-white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-danger:hover {
+            background: #ff453a;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Animation for Details page */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Highlight.js adjustments - Bright JSON syntax highlighting */
+        pre code.hljs {
+            background: var(--notion-white);
+            border: 1px solid var(--notion-light-grey);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Bright JSON syntax highlighting colors */
+        pre code.hljs {
+            color: #2d3748; /* Dark text for better contrast */
+        }
+
+        pre code.hljs .hljs-string {
+            color: #059669; /* Bright green for strings */
+            font-weight: 500;
+        }
+
+        pre code.hljs .hljs-number {
+            color: #dc2626; /* Bright red for numbers */
+            font-weight: 600;
+        }
+
+        pre code.hljs .hljs-boolean {
+            color: #7c3aed; /* Bright purple for booleans */
+            font-weight: 600;
+        }
+
+        pre code.hljs .hljs-null {
+            color: #ea580c; /* Bright orange for null */
+            font-weight: 600;
+        }
+
+        pre code.hljs .hljs-keyword {
+            color: #2563eb; /* Bright blue for keywords */
+            font-weight: 600;
+        }
+
+        pre code.hljs .hljs-attr {
+            color: #0891b2; /* Bright cyan for attributes/keys */
+            font-weight: 500;
+        }
+
+        pre code.hljs .hljs-punctuation {
+            color: #6b7280; /* Medium grey for punctuation */
+        }
+
+        pre code.hljs .hljs-comment {
+            color: #9ca3af; /* Light grey for comments */
+            font-style: italic;
+        }
+
+        /* Make JSON more readable with better spacing */
+        pre code.hljs {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+            tab-size: 2;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Error highlighting in JSON */
+        .json-error {
+            color: #ef4444 !important; /* Bright red */
+            font-weight: 700 !important;
+            background-color: rgba(239, 68, 68, 0.1) !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+            border: 1px solid rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .json-invalid {
+            color: #dc2626 !important; /* Darker red */
+            font-weight: 700 !important;
+            background-color: rgba(220, 38, 38, 0.1) !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+            border: 1px solid rgba(220, 38, 38, 0.2) !important;
+        }
+
+        /* Ensure error highlighting overrides other styles */
+        pre code.hljs .json-error,
+        pre code.hljs .json-invalid {
+            color: #ef4444 !important;
+            font-weight: 700 !important;
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+            margin: 0 2px !important;
+        }
+
+        /* Modern Apple-style stats cards */
+        .stats-card {
+            background: var(--apple-white);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--apple-blue), var(--apple-blue-light));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stats-card:hover::before {
+            opacity: 1;
+        }
+
+        .stats-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+        }
+
+        .stats-card h3 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--apple-dark-grey);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .stats-card p {
+            color: var(--apple-grey);
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Top Navigation -->
+    <nav class="navbar fixed top-0 left-0 right-0 p-4 shadow-lg z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="icon-container w-9 h-9 bg-gradient-to-br from-blue-100 to-blue-200">
+                    <svg class="w-5 h-5 text-blue-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900">E-Invoice Dashboard</h2>
+            </div>
+            <div class="flex items-center space-x-1">
+                <a href="/" class="inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition" aria-label="Go to Dashboard">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/settings" class="inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition" aria-label="Go to Settings">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+                <button class="inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition" id="filter-toggle" aria-label="Toggle Filters">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    <span>Filters</span>
+                </button>
+                <a href="/sync" class="inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition" id="sync-link" aria-label="Sync Data">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span>Sync Data</span>
+                </a>
+                <div class="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>{{ current_user.username }}</span>
+                </div>
+                <a href="/logout" class="inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 transition" aria-label="Logout">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-24 right-4 z-50 space-y-2">
+                {% for category, message in messages %}
+                    <div class="flash-message p-4 rounded-lg shadow-lg max-w-sm
+                        {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200{% endif %}
+                        {% if category == 'success' %}bg-green-50 text-green-700 border border-green-200{% endif %}
+                        {% if category == 'warning' %}bg-yellow-50 text-yellow-700 border border-yellow-200{% endif %}
+                        {% if category == 'info' %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-shrink-0">
+                                {% if category == 'error' %}
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% elif category == 'success' %}
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% elif category == 'warning' %}
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% else %}
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm font-medium">{{ message }}</p>
+                            <button class="flash-close ml-auto flex-shrink-0">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <div class="pt-20 p-8">
+        {% block content %}{% endblock %}
+    </div>
+    <script>
+        // Loading spinner for sync
+        $(document).ready(function() {
+            $('#sync-link').click(function(e) {
+                e.preventDefault();
+                $(this).append('<span class="loading-spinner inline-block"></span>');
+                window.location.href = $(this).attr('href');
+            });
+            // Initialize Highlight.js
+            hljs.highlightAll();
+
+            // Flash message close functionality
+            $('.flash-close').click(function() {
+                $(this).closest('.flash-message').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            });
+
+            // Auto-hide flash messages after 5 seconds
+            setTimeout(function() {
+                $('.flash-message').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

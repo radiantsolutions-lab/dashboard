@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}Document Details{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4 tracking-tight">Document Details</h1>
+        <div class="bg-gray-100 rounded-lg px-4 py-2 inline-block">
+            <p class="text-gray-700 font-mono text-sm">{{ uuid }}</p>
+        </div>
+    </div>
+
+    <div class="flex justify-center gap-4 mb-12">
+        <a href="/" class="btn-secondary flex items-center gap-2" aria-label="Back to Dashboard">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Dashboard
+        </a>
+        <a href="/retry_detail/{{ uuid }}" class="btn-primary flex items-center gap-2" aria-label="Retry fetching details">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Retry Sync
+        </a>
+    </div>
+
+    <!-- Validation Summary -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="icon-container w-10 h-10 {% if val_status == 'Valid' %}bg-gradient-to-br from-green-100 to-green-200{% elif val_status == 'Invalid' %}bg-gradient-to-br from-red-100 to-red-200{% else %}bg-gradient-to-br from-yellow-100 to-yellow-200{% endif %}">
+                        {% if val_status == 'Valid' %}
+                            <svg class="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        {% elif val_status == 'Invalid' %}
+                            <svg class="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                        {% else %}
+                            <svg class="w-5 h-5 text-yellow-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Validation Status</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ val_status }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="icon-container w-10 h-10 {% if error_count > 0 %}bg-gradient-to-br from-red-100 to-red-200{% else %}bg-gradient-to-br from-green-100 to-green-200{% endif %}">
+                        {% if error_count > 0 %}
+                            <svg class="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                        {% else %}
+                            <svg class="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Error Count</p>
+                        <p class="text-2xl font-bold {% if error_count > 0 %}text-red-600{% else %}text-gray-900{% endif %} mt-1">{{ error_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="icon-container w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200">
+                        <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Warning Count</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ warning_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSON Data Section -->
+    <div class="card p-8 fade-in">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Raw JSON Data</h2>
+            <p class="text-gray-600">Complete API response with syntax highlighting</p>
+        </div>
+        <div class="flex items-center justify-end mb-6">
+            <button id="copy-json" class="btn-secondary flex items-center gap-2" title="Copy JSON to clipboard" aria-label="Copy JSON to clipboard">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                Copy JSON
+            </button>
+        </div>
+
+        {% if raw_json != '{}' %}
+            <div class="overflow-x-auto">
+                <pre><code class="language-json hljs">{{ raw_json | safe }}</code></pre>
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="text-gray-400 text-4xl mb-4">📄</div>
+                <p class="text-gray-600 text-lg mb-2">No JSON data available</p>
+                <p class="text-gray-500">Please try the "Retry Sync" button or verify the UUID is correct.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+$(document).ready(function() {
+    // Apply Highlight.js to JSON
+    $('pre code.language-json').each(function(i, block) {
+        hljs.highlightElement(block);
+
+        // After highlighting, add error highlighting
+        highlightErrors(block);
+    });
+
+    // Function to highlight error and invalid sections in red
+    function highlightErrors(codeBlock) {
+        let html = codeBlock.innerHTML;
+
+        // Simple direct replacements - highlight "Invalid" status
+        html = html.replace(/Invalid/g, '<span class="json-invalid">Invalid</span>');
+
+        // Highlight "error" in any context
+        html = html.replace(/error/gi, '<span class="json-error">error</span>');
+
+        // Highlight "Error" when capitalized
+        html = html.replace(/Error/g, '<span class="json-error">Error</span>');
+
+        codeBlock.innerHTML = html;
+    }
+
+    // Copy JSON to clipboard
+    $('#copy-json').click(function() {
+        const jsonText = $('pre code.language-json').text();
+        if (jsonText) {
+            navigator.clipboard.writeText(jsonText).then(function() {
+                Toastify({
+                    text: "JSON copied to clipboard!",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#10B981",
+                    className: "toastify-success"
+                }).showToast();
+            }, function(err) {
+                console.error('Error copying JSON:', err);
+                Toastify({
+                    text: "Failed to copy JSON: " + err.message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#EF4444",
+                    className: "toastify-error"
+                }).showToast();
+            });
+        } else {
+            Toastify({
+                text: "No JSON data to copy.",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#EF4444",
+                className: "toastify-error"
+            }).showToast();
+        }
+    });
+});
+</script>
+{% endblock %}
