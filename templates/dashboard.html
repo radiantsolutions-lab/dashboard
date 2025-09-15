@@ -223,27 +223,39 @@ $(document).ready(function() {
         }
     });
 
-    // Initialize DataTable
-    const dataTable = $('#docsTable').DataTable({
-        responsive: true,
-        pageLength: 10,
-        order: [[0, 'desc']],
-        columnDefs: [
-            { targets: '_all', className: 'px-4 py-2 text-sm' }
-        ],
-        language: {
-            lengthMenu: "Show _MENU_"
-        },
-        dom: 't<"dataTables_paginate"p>' // Only table and pagination
-    });
+    // Initialize DataTable only if table has data rows
+    let dataTable;
+    if ($('#docsTable tbody tr').length > 0) {
+        dataTable = $('#docsTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            order: [[0, 'desc']],
+            columnDefs: [
+                { targets: '_all', className: 'px-4 py-2 text-sm' }
+            ],
+            language: {
+                lengthMenu: "Show _MENU_"
+            },
+            dom: 't<"dataTables_paginate"p>' // Only table and pagination
+        });
+    } else {
+        // Hide pagination controls if no data
+        $('.dataTables_paginate').hide();
+        dataTable = null;
+    }
 
-    // Bind custom controls to DataTable
-    $('.dataTables_length.custom select').on('change', function() {
-        dataTable.page.len($(this).val()).draw();
-    });
-    $('.dataTables_filter.custom input').on('input', function() {
-        dataTable.search($(this).val()).draw();
-    });
+    // Bind custom controls to DataTable (only if initialized)
+    if (dataTable) {
+        $('.dataTables_length.custom select').on('change', function() {
+            dataTable.page.len($(this).val()).draw();
+        });
+        $('.dataTables_filter.custom input').on('input', function() {
+            dataTable.search($(this).val()).draw();
+        });
+    } else {
+        // Hide custom controls if no DataTable
+        $('.dataTables_length.custom, .dataTables_filter.custom').hide();
+    }
 
     // Export to CSV
     $('#export-csv').click(function() {

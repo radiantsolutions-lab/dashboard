@@ -138,6 +138,55 @@ class AppSettings(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class Document(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    submission_uid = db.Column(db.String(100), index=True)
+    long_id = db.Column(db.String(200))
+    internal_id = db.Column(db.String(100))
+    type_name = db.Column(db.String(100))
+    type_version_name = db.Column(db.String(50))
+    supplier_tin = db.Column(db.String(50))
+    supplier_name = db.Column(db.String(200))
+    receiver_tin = db.Column(db.String(50))
+    issuer_tin = db.Column(db.String(50))
+    receiver_name = db.Column(db.String(200))
+    date_time_issued = db.Column(db.DateTime)
+    date_time_received = db.Column(db.DateTime, index=True)
+    date_time_validated = db.Column(db.DateTime)
+    total_sales = db.Column(db.Float)
+    total_discount = db.Column(db.Float)
+    net_amount = db.Column(db.Float)
+    total = db.Column(db.Float)
+    status = db.Column(db.String(50), index=True)
+    submission_channel = db.Column(db.String(50))
+    intermediary_name = db.Column(db.String(200))
+    intermediary_tin = db.Column(db.String(50))
+    intermediary_rob = db.Column(db.String(50))
+    submitter_rob = db.Column(db.String(50))
+    cancel_date_time = db.Column(db.DateTime)
+    reject_request_date_time = db.Column(db.DateTime)
+    document_status_reason = db.Column(db.Text)
+    created_by_user_id = db.Column(db.String(50))
+    buyer_name = db.Column(db.String(200))
+    buyer_tin = db.Column(db.String(50))
+    receiver_id = db.Column(db.String(50))
+    receiver_id_type = db.Column(db.String(50))
+    issuer_id = db.Column(db.String(50))
+    issuer_id_type = db.Column(db.String(50))
+    document_currency = db.Column(db.String(10))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class DocumentDetail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(100), nullable=False, index=True)
+    detail_data = db.Column(db.Text, nullable=False)  # JSON data
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (db.Index('idx_uuid', 'uuid'),)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -175,6 +224,25 @@ def init_db():
 # Initialize database
 init_db()
 
+# Helper functions for data conversion
+def parse_datetime(date_str):
+    """Parse datetime string, return None if invalid"""
+    if not date_str:
+        return None
+    try:
+        return pd.to_datetime(date_str)
+    except:
+        return None
+
+def float_or_none(value):
+    """Convert to float, return None if invalid"""
+    if value is None or value == '':
+        return None
+    try:
+        return float(value)
+    except:
+        return None
+
 def get_token(acc):
     logger.info(f"Attempting to get token for account: {acc.get('name')}")
     data = {
@@ -199,48 +267,64 @@ def get_token(acc):
         logger.error(f"Exception during authentication: {str(e)}")
         raise
 
-def fetch_detail(token, base_url, uuid, data_folder):
-    detail_dir = os.path.join(data_folder, 'details')
-    os.makedirs(detail_dir, exist_ok=True)
-    detail_file = os.path.join(detail_dir, f'{uuid}.json')
-    logger.info(f"Checking detail file: {detail_file}")
-    if not os.path.exists(detail_file):
-        if not token or not base_url:
-            logger.error(f"Cannot fetch details for UUID {uuid}: missing token or base_url")
-            return {}
-        url = base_url + f'documents/{uuid}/details'
-        headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+def fetch_detail(token, base_url, uuid, data_folder=None):
+    """Fetch document details from API or database"""
+    logger.info(f"Checking document details for UUID: {uuid}")
+
+    # Check if details exist in database
+    existing_detail = DocumentDetail.query.filter_by(uuid=uuid).first()
+    if existing_detail:
         try:
-            resp = requests.get(url, headers=headers, timeout=10)
-            if resp.status_code == 200:
-                try:
-                    det = resp.json()
-                    json.dumps(det, ensure_ascii=False)  # Validate JSON
-                    logger.info(f"Raw API response for UUID {uuid}: {json.dumps(det)[:200]}...")
-                    with open(detail_file, 'w', encoding='utf-8') as f:
-                        json.dump(det, f, indent=4, ensure_ascii=False)
-                    logger.info(f"Successfully fetched and saved details for UUID: {uuid}")
-                    return det
-                except ValueError as e:
-                    logger.error(f"Invalid JSON response for UUID {uuid}: {str(e)}")
-                    with open(detail_file, 'w', encoding='utf-8') as f:
-                        json.dump({}, f)
-                    return {}
-            else:
-                logger.error(f"Error fetching details for UUID {uuid}: {resp.status_code} - {resp.text}")
-                return {}
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Exception fetching details for UUID {uuid}: {str(e)}")
-            return {}
-    else:
-        try:
-            with open(detail_file, 'r', encoding='utf-8') as f:
-                det = json.load(f)
-            logger.info(f"Loaded existing details for UUID {uuid}: {json.dumps(det)[:200]}...")
+            det = json.loads(existing_detail.detail_data)
+            logger.info(f"Loaded existing details for UUID {uuid} from database")
             return det
-        except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Error reading detail file for UUID {uuid}: {str(e)}")
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"Error parsing stored detail data for UUID {uuid}: {str(e)}")
+
+    # Fetch from API if not in database
+    if not token or not base_url:
+        logger.error(f"Cannot fetch details for UUID {uuid}: missing token or base_url")
+        return {}
+
+    url = base_url + f'documents/{uuid}/details'
+    headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            try:
+                det = resp.json()
+                json.dumps(det, ensure_ascii=False)  # Validate JSON
+                logger.info(f"Raw API response for UUID {uuid}: {json.dumps(det)[:200]}...")
+
+                # Save to database
+                try:
+                    # Remove existing detail if any
+                    if existing_detail:
+                        db.session.delete(existing_detail)
+
+                    # Create new detail record
+                    detail_record = DocumentDetail(
+                        uuid=uuid,
+                        detail_data=json.dumps(det, ensure_ascii=False)
+                    )
+                    db.session.add(detail_record)
+                    db.session.commit()
+                    logger.info(f"Successfully fetched and saved details for UUID: {uuid}")
+                except Exception as e:
+                    db.session.rollback()
+                    logger.error(f"Error saving document detail to database: {str(e)}")
+
+                return det
+            except ValueError as e:
+                logger.error(f"Invalid JSON response for UUID {uuid}: {str(e)}")
+                return {}
+        else:
+            logger.error(f"Error fetching details for UUID {uuid}: {resp.status_code} - {resp.text}")
             return {}
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Exception fetching details for UUID {uuid}: {str(e)}")
+        return {}
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -432,11 +516,8 @@ def sync():
     direction = settings['defaults'].get('direction', 'Sent')
     status = settings['defaults'].get('status', '')
     page_size = int(settings['defaults'].get('page_size', 100))
-    data_folder = settings['defaults']['data_folder']
-    os.makedirs(data_folder, exist_ok=True)
-    docs_file = os.path.join(data_folder, 'documents.csv')
-    existing_df = pd.read_csv(docs_file) if os.path.exists(docs_file) else pd.DataFrame()
-    existing_uuids = set(existing_df['uuid']) if not existing_df.empty else set()
+    # Get existing document UUIDs from database
+    existing_uuids = set([doc.uuid for doc in Document.query.with_entities(Document.uuid).all()])
     new_docs = []
     end_date = datetime.utcnow()
     start_date = end_date - timedelta(days=days)
@@ -475,7 +556,7 @@ def sync():
                     new_docs.append(doc)
                     existing_uuids.add(doc['uuid'])
                     if doc.get('status') == 'Invalid':
-                        fetch_detail(token, acc['base_url'], doc['uuid'], data_folder)
+                        fetch_detail(token, acc['base_url'], doc['uuid'], None)  # No data_folder needed
             metadata = data.get('metadata', {})
             if page >= metadata.get('totalPages', 1):
                 break
@@ -483,10 +564,63 @@ def sync():
             time.sleep(1)  # Throttle
         current_start = current_end
         time.sleep(1)  # Throttle between chunks
+
+    # Save new documents to database
     if new_docs:
-        new_df = pd.DataFrame(new_docs)
-        updated_df = pd.concat([existing_df, new_df], ignore_index=True)
-        updated_df.to_csv(docs_file, index=False)
+        logger.info(f"Saving {len(new_docs)} new documents to database")
+        for doc_data in new_docs:
+            try:
+                # Create document record
+                document = Document(
+                    uuid=doc_data.get('uuid'),
+                    submission_uid=doc_data.get('submissionUid'),
+                    long_id=doc_data.get('longId'),
+                    internal_id=doc_data.get('internalId'),
+                    type_name=doc_data.get('typeName'),
+                    type_version_name=doc_data.get('typeVersionName'),
+                    supplier_tin=doc_data.get('supplierTIN'),
+                    supplier_name=doc_data.get('supplierName'),
+                    receiver_tin=doc_data.get('receiverTIN'),
+                    issuer_tin=doc_data.get('issuerTIN'),
+                    receiver_name=doc_data.get('receiverName'),
+                    date_time_issued=parse_datetime(doc_data.get('dateTimeIssued')),
+                    date_time_received=parse_datetime(doc_data.get('dateTimeReceived')),
+                    date_time_validated=parse_datetime(doc_data.get('dateTimeValidated')),
+                    total_sales=float_or_none(doc_data.get('totalSales')),
+                    total_discount=float_or_none(doc_data.get('totalDiscount')),
+                    net_amount=float_or_none(doc_data.get('netAmount')),
+                    total=float_or_none(doc_data.get('total')),
+                    status=doc_data.get('status'),
+                    submission_channel=doc_data.get('submissionChannel'),
+                    intermediary_name=doc_data.get('intermediaryName'),
+                    intermediary_tin=doc_data.get('intermediaryTIN'),
+                    intermediary_rob=doc_data.get('intermediaryROB'),
+                    submitter_rob=doc_data.get('submitterROB'),
+                    cancel_date_time=parse_datetime(doc_data.get('cancelDateTime')),
+                    reject_request_date_time=parse_datetime(doc_data.get('rejectRequestDateTime')),
+                    document_status_reason=doc_data.get('documentStatusReason'),
+                    created_by_user_id=doc_data.get('createdByUserId'),
+                    buyer_name=doc_data.get('buyerName'),
+                    buyer_tin=doc_data.get('buyerTIN'),
+                    receiver_id=doc_data.get('receiverID'),
+                    receiver_id_type=doc_data.get('receiverIDType'),
+                    issuer_id=doc_data.get('issuerID'),
+                    issuer_id_type=doc_data.get('issuerIDType'),
+                    document_currency=doc_data.get('documentCurrency')
+                )
+                db.session.add(document)
+            except Exception as e:
+                logger.error(f"Error creating document record for UUID {doc_data.get('uuid')}: {str(e)}")
+                continue
+
+        try:
+            db.session.commit()
+            logger.info(f"Successfully saved {len(new_docs)} documents to database")
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error committing documents to database: {str(e)}")
+            return render_template('500.html', error="Failed to save documents to database"), 500
+
     logger.info("Sync completed, redirecting to dashboard")
     return redirect(url_for('dashboard'))
 
@@ -511,10 +645,53 @@ def dashboard():
             logger.error(f"Error reading documents.csv: {str(e)}")
             df = pd.DataFrame()
 
-    # If no data, show empty dashboard instead of error
-    if df.empty:
+    # Get documents from database
+    query = Document.query
+
+    # Apply filters
+    status_filter = ''
+    date_filter = ''
+    from_date = ''
+    to_date = ''
+
+    if request.method == 'POST':
+        status_filter = request.form.get('status_filter', '')
+        date_filter = request.form.get('date_filter', '')
+        from_date = request.form.get('from_date', '')
+        to_date = request.form.get('to_date', '')
+
+        if status_filter:
+            query = query.filter(Document.status == status_filter)
+
+        if date_filter:
+            try:
+                date_obj = pd.to_datetime(date_filter).date()
+                query = query.filter(db.func.date(Document.date_time_received) == date_obj)
+            except Exception as e:
+                logger.error(f"Error processing date filter: {str(e)}")
+
+        # Apply date range filters
+        if from_date:
+            try:
+                from_date_obj = pd.to_datetime(from_date).date()
+                query = query.filter(db.func.date(Document.date_time_received) >= from_date_obj)
+            except Exception as e:
+                logger.error(f"Error processing from_date filter: {str(e)}")
+
+        if to_date:
+            try:
+                to_date_obj = pd.to_datetime(to_date).date()
+                query = query.filter(db.func.date(Document.date_time_received) <= to_date_obj)
+            except Exception as e:
+                logger.error(f"Error processing to_date filter: {str(e)}")
+
+    # Get filtered documents
+    documents = query.all()
+    logger.info(f"Found {len(documents)} documents after filtering")
+
+    # If no documents, return empty dashboard
+    if not documents:
         logger.info("No documents found - showing empty dashboard")
-        # Return empty dashboard with zero counts
         totals = {'total': 0, 'valid': 0, 'invalid': 0, 'submitted': 0, 'cancelled': 0}
         table_data = []
         available_columns = []
@@ -522,71 +699,50 @@ def dashboard():
         date_options = []
         return render_template('dashboard.html', totals=totals, table_data=table_data,
                               available_columns=available_columns, status_options=status_options,
-                              date_options=date_options, status_filter='', date_filter='',
-                              from_date='', to_date='', active_account=settings.get('active_account', 'No Active Account'))
+                              date_options=date_options, status_filter=status_filter, date_filter=date_filter,
+                              from_date=from_date, to_date=to_date, active_account=settings.get('active_account', 'No Active Account'))
 
-    logger.info(f"DataFrame columns: {df.columns.tolist()}")
-    
-    # Apply filters
-    filtered_df = df.copy()
+    # Calculate totals
+    total_docs = len(documents)
+    valid = len([d for d in documents if d.status == 'Valid'])
+    invalid = len([d for d in documents if d.status == 'Invalid'])
+    submitted_count = len([d for d in documents if d.status == 'Submitted'])
+    cancelled = len([d for d in documents if d.status == 'Cancelled'])
+    totals = {'total': total_docs, 'valid': valid, 'invalid': invalid, 'submitted': submitted_count, 'cancelled': cancelled}
 
-    # Only apply filters if this is a POST request (form submission)
-    if request.method == 'POST':
-        status_filter = request.form.get('status_filter', '')
-        date_filter = request.form.get('date_filter', '')
-        from_date = request.form.get('from_date', '')
-        to_date = request.form.get('to_date', '')
-    else:
-        status_filter = ''
-        date_filter = ''
-        from_date = ''
-        to_date = ''
+    # Table data with reordered columns (match template expectations)
+    column_mapping = {
+        'internalId': 'internal_id',
+        'uuid': 'uuid',
+        'dateTimeReceived': 'date_time_received',
+        'dateTimeValidated': 'date_time_validated',
+        'status': 'status',
+        'typeName': 'type_name',
+        'typeVersionName': 'type_version_name',
+        'submissionUID': 'submission_uid',
+        'supplierName': 'supplier_name',
+        'buyerName': 'buyer_name',
+        'total': 'total',
+        'longId': 'long_id',
+        'submissionChannel': 'submission_channel'
+    }
 
+    available_columns = list(column_mapping.keys())
 
-    if status_filter:
-        filtered_df = filtered_df[filtered_df['status'] == status_filter]
+    table_data = []
+    for doc in documents:
+        row = {}
+        for display_col, db_col in column_mapping.items():
+            value = getattr(doc, db_col, None)
+            if db_col in ['date_time_received', 'date_time_validated'] and value:
+                value = value.strftime('%Y-%m-%d %H:%M:%S')
+            row[display_col] = value or 'N/A'
+        table_data.append(row)
 
-    if date_filter:
-        try:
-            filtered_df['date'] = pd.to_datetime(filtered_df['dateTimeReceived']).dt.date.astype(str)
-            filtered_df = filtered_df[filtered_df['date'] == date_filter]
-        except Exception as e:
-            logger.error(f"Error processing date filter: {str(e)}")
-
-    # Apply date range filters
-    if from_date or to_date:
-        try:
-            # Convert dateTimeReceived to date for comparison
-            filtered_df['submission_date'] = pd.to_datetime(filtered_df['dateTimeReceived']).dt.date
-
-            if from_date:
-                from_date_obj = pd.to_datetime(from_date).date()
-                filtered_df = filtered_df[filtered_df['submission_date'] >= from_date_obj]
-
-            if to_date:
-                to_date_obj = pd.to_datetime(to_date).date()
-                filtered_df = filtered_df[filtered_df['submission_date'] <= to_date_obj]
-
-        except Exception as e:
-            logger.error(f"Error processing date range filters: {str(e)}")
-    
-    # Totals
-    total_docs = len(filtered_df)
-    valid = len(filtered_df[filtered_df['status'] == 'Valid'])
-    invalid = len(filtered_df[filtered_df['status'] == 'Invalid'])
-    submitted = len(filtered_df[filtered_df['status'] == 'Submitted'])
-    cancelled = len(filtered_df[filtered_df['status'] == 'Cancelled'])
-    totals = {'total': total_docs, 'valid': valid, 'invalid': invalid, 'submitted': submitted, 'cancelled': cancelled}
-    logger.info(f"Submitted documents count: {submitted}")
-    
-    # Table data with reordered columns
-    columns = ['internalId', 'uuid', 'dateTimeReceived', 'dateTimeValidated', 'status', 'typeName', 'typeVersionName', 'submissionUID', 'supplierName', 'buyerName', 'total', 'longId', 'submissionChannel']
-    available_columns = [col for col in columns if col in df.columns]
-    table_data = filtered_df[available_columns].to_dict(orient='records')
-    
     # Filter options
-    status_options = df['status'].unique().tolist() if 'status' in df.columns else []
-    date_options = df['dateTimeReceived'].apply(lambda x: pd.to_datetime(x).date().isoformat()).unique().tolist() if 'dateTimeReceived' in df.columns else []
+    all_docs = Document.query.all()
+    status_options = list(set([d.status for d in all_docs if d.status]))
+    date_options = list(set([d.date_time_received.date().isoformat() for d in all_docs if d.date_time_received]))
     
     logger.info("Rendering dashboard template")
     return render_template('dashboard.html', totals=totals, table_data=table_data,
@@ -598,14 +754,29 @@ def dashboard():
 @app.route('/export_csv', methods=['POST'])
 @login_required
 def export_csv():
-    logger.info("Exporting CSV")
-    settings = load_settings()
-    if settings is None:
-        return jsonify({'error': 'Failed to load settings'}), 500
-    data_folder = settings['defaults']['data_folder']
-    docs_file = os.path.join(data_folder, 'documents.csv')
-    if not os.path.exists(docs_file):
-        logger.info("documents.csv not found for export - returning empty CSV")
+    logger.info("Exporting CSV from database")
+
+    # Build query for filtered documents
+    query = Document.query
+
+    status_filter = request.form.get('status_filter', '')
+    date_filter = request.form.get('date_filter', '')
+
+    if status_filter:
+        query = query.filter(Document.status == status_filter)
+
+    if date_filter:
+        try:
+            date_obj = pd.to_datetime(date_filter).date()
+            query = query.filter(db.func.date(Document.date_time_received) == date_obj)
+        except Exception as e:
+            logger.error(f"Error processing date filter for export: {str(e)}")
+
+    # Get filtered documents
+    documents = query.all()
+    logger.info(f"Exporting {len(documents)} documents to CSV")
+
+    if not documents:
         # Return empty CSV with headers
         output = io.StringIO()
         output.write("No data available\n")
@@ -617,29 +788,34 @@ def export_csv():
             download_name='documents_empty.csv'
         )
 
-    try:
-        df = pd.read_csv(docs_file)
-    except Exception as e:
-        logger.error(f"Error reading documents.csv for export: {str(e)}")
-        return jsonify({'error': 'Error reading data'}), 500
-    
-    status_filter = request.form.get('status_filter', '')
-    date_filter = request.form.get('date_filter', '')
-    if status_filter:
-        df = df[df['status'] == status_filter]
-    if date_filter:
-        df['date'] = pd.to_datetime(df['dateTimeReceived']).dt.date.astype(str)
-        df = df[df['date'] == date_filter]
-    
-    columns = ['internalId', 'uuid', 'dateTimeReceived', 'dateTimeValidated', 'status', 'typeName', 'typeVersionName', 'submissionUID', 'supplierName', 'buyerName', 'total', 'longId', 'submissionChannel']
-    available_columns = [col for col in columns if col in df.columns]
-    df = df[available_columns]
-    
+    # Convert to DataFrame for CSV export
+    data = []
+    for doc in documents:
+        row = {
+            'internalId': doc.internal_id or '',
+            'uuid': doc.uuid,
+            'dateTimeReceived': doc.date_time_received.strftime('%Y-%m-%d %H:%M:%S') if doc.date_time_received else '',
+            'dateTimeValidated': doc.date_time_validated.strftime('%Y-%m-%d %H:%M:%S') if doc.date_time_validated else '',
+            'status': doc.status or '',
+            'typeName': doc.type_name or '',
+            'typeVersionName': doc.type_version_name or '',
+            'submissionUID': doc.submission_uid or '',
+            'supplierName': doc.supplier_name or '',
+            'buyerName': doc.buyer_name or '',
+            'total': str(doc.total) if doc.total is not None else '',
+            'longId': doc.long_id or '',
+            'submissionChannel': doc.submission_channel or ''
+        }
+        data.append(row)
+
+    df = pd.DataFrame(data)
+
+    # Export to CSV
     output = io.StringIO()
     df.to_csv(output, index=False)
     output.seek(0)
-    
-    logger.info("CSV export successful")
+
+    logger.info("CSV export from database successful")
     return send_file(
         io.BytesIO(output.getvalue().encode('utf-8')),
         mimetype='text/csv',
@@ -681,21 +857,22 @@ def detail(uuid):
     settings = load_settings()
     if settings is None:
         return render_template('500.html', error="Failed to load settings."), 500
-    data_folder = settings['defaults']['data_folder']
-    acc = next((a for a in settings['accounts'] if a['name'] == settings['active_account']), None)
-    if not acc:
-        logger.error("No active account found")
-        return render_template('500.html', error="No active account."), 400
-    detail_file = os.path.join(data_folder, 'details', f'{uuid}.json')
-    if not os.path.exists(detail_file):
+
+    # Try to get details from database first
+    det = fetch_detail(None, None, uuid, None)
+
+    # If not found in database, fetch from API
+    if not det:
+        acc = next((a for a in settings['accounts'] if a['name'] == settings['active_account']), None)
+        if not acc:
+            logger.error("No active account found")
+            return render_template('500.html', error="No active account."), 400
         try:
             token = get_token(acc)
-            det = fetch_detail(token, acc['base_url'], uuid, data_folder)
+            det = fetch_detail(token, acc['base_url'], uuid, None)
         except Exception as e:
             logger.error(f"Error fetching details: {str(e)}")
             return render_template('detail.html', uuid=uuid, val_status='Unknown', error_count=0, warning_count=0, raw_json='{}')
-    else:
-        det = fetch_detail(None, None, uuid, data_folder)  # Load from file
     try:
         val_status = det.get('validationResults', {}).get('status', 'Unknown')
         steps = det.get('validationResults', {}).get('validationSteps', [])
