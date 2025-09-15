@@ -54,7 +54,18 @@ def load_settings():
                 keys = setting.key.split('.')
                 if keys[0] not in settings:
                     settings[keys[0]] = {}
-                settings[keys[0]][keys[1]] = setting.value
+
+                # Convert numeric values for defaults
+                if keys[0] == 'defaults':
+                    if keys[1] in ['days', 'page_size']:
+                        try:
+                            settings[keys[0]][keys[1]] = int(setting.value)
+                        except (ValueError, TypeError):
+                            settings[keys[0]][keys[1]] = 10 if keys[1] == 'days' else 100
+                    else:
+                        settings[keys[0]][keys[1]] = setting.value
+                else:
+                    settings[keys[0]][keys[1]] = setting.value
             else:
                 # Simple settings
                 try:
@@ -381,10 +392,10 @@ def settings_page():
             logger.info(f"Full settings after update: {settings}")
         elif action == 'set_defaults':
             settings['defaults'] = {
-                'days': int(request.form['days']),
+                'days': int(request.form['days']) if request.form['days'] else 10,
                 'direction': request.form['direction'],
                 'status': request.form['status'],
-                'page_size': int(request.form['page_size']),
+                'page_size': int(request.form['page_size']) if request.form['page_size'] else 100,
                 'data_folder': request.form['data_folder']
             }
         save_settings(settings)
@@ -417,10 +428,10 @@ def sync():
         token = get_token(acc)
     except Exception as e:
         return render_template('500.html', error=f"Authentication failed: {str(e)}"), 401
-    days = settings['defaults']['days']
-    direction = settings['defaults']['direction']
-    status = settings['defaults']['status']
-    page_size = settings['defaults']['page_size']
+    days = int(settings['defaults'].get('days', 10))
+    direction = settings['defaults'].get('direction', 'Sent')
+    status = settings['defaults'].get('status', '')
+    page_size = int(settings['defaults'].get('page_size', 100))
     data_folder = settings['defaults']['data_folder']
     os.makedirs(data_folder, exist_ok=True)
     docs_file = os.path.join(data_folder, 'documents.csv')
