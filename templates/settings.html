@@ -1,207 +1,222 @@
 {% extends 'base.html' %}
 {% block title %}Settings{% endblock %}
 {% block content %}
-<div class="max-w-7xl mx-auto px-6 py-12">
-    <div class="text-center mb-16">
-        <h1 class="text-5xl font-bold text-gray-900 mb-4 tracking-tight">Settings</h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Configure your e-invoice dashboard preferences and API accounts</p>
+<div class="max-w-6xl mx-auto px-6 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2 tracking-tight">Settings</h1>
+        <p class="text-lg text-gray-600">Configure your e-invoice dashboard preferences and API accounts</p>
     </div>
 
     <!-- Configuration Section -->
-    <div class="mb-16">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">Configuration</h2>
-            <p class="text-gray-600">Set up your default preferences and active account</p>
-        </div>
+    <div class="mb-8">
+        <div class="card p-6">
+            <div class="flex items-center mb-6">
+                <div class="icon-container w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 mr-4">
+                    <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-900">Configuration</h2>
+                    <p class="text-gray-600 text-sm">Set up your default preferences and active account</p>
+                </div>
+            </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            <!-- Defaults Form -->
-            <div class="card p-8">
-                <div class="text-center mb-6">
-                    <div class="icon-container w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 mx-auto mb-4">
-                        <svg class="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Default Settings</h3>
-                    <p class="text-gray-600 text-sm">Configure sync preferences and filters</p>
-                </div>
-            <form method="POST" id="defaults-form">
-                <input type="hidden" name="action" value="set_defaults">
-                <div class="space-y-4">
-                    <div>
-                        <label for="days" class="block text-sm font-medium text-gray-700 mb-1">Sync Days</label>
-                        <input type="number" id="days" name="days" value="{{ settings.defaults.days }}" class="form-input w-full" aria-label="Number of days for data sync">
-                    </div>
-                    <div>
-                        <label for="direction" class="block text-sm font-medium text-gray-700 mb-1">Direction</label>
-                        <select id="direction" name="direction" class="form-select w-full" aria-label="Direction of data sync">
-                            <option value="Sent" {% if settings.defaults.direction == 'Sent' %}selected{% endif %}>Sent</option>
-                            <option value="Received" {% if settings.defaults.direction == 'Received' %}selected{% endif %}>Received</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status Filter</label>
-                        <input type="text" id="status" name="status" value="{{ settings.defaults.status }}" class="form-input w-full" placeholder="Valid,Invalid, etc. or blank" aria-label="Filter by document status">
-                    </div>
-                    <div>
-                        <label for="page_size" class="block text-sm font-medium text-gray-700 mb-1">Page Size</label>
-                        <input type="number" id="page_size" name="page_size" value="{{ settings.defaults.page_size }}" class="form-input w-full" aria-label="Page size for data sync">
-                    </div>
-                    <button type="submit" class="btn-primary" aria-label="Save default settings">Save Defaults</button>
-                </div>
-            </form>
-        </div>
-
-            <!-- Active Account -->
-            <div class="card p-8">
-                <div class="text-center mb-6">
-                    <div class="icon-container w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 mx-auto mb-4">
-                        <svg class="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Active Account</h3>
-                    <p class="text-gray-600 text-sm">Select which API account to use</p>
-                </div>
-            <form method="POST" id="active-account-form">
-                <input type="hidden" name="action" value="set_active">
-                <div class="space-y-4">
-                    <div>
-                        <label for="active_account" class="block text-sm font-medium text-gray-700 mb-1">Select Account</label>
-                        {% if settings.accounts %}
-                        <select name="active_account" id="active_account" class="form-select w-full" aria-label="Select active account">
-                            {% for acc in settings.accounts %}
-                            <option value="{{ acc.name }}" {% if settings.active_account == acc.name %}selected{% endif %}>{{ acc.name }}</option>
-                            {% endfor %}
-                        </select>
-                        {% else %}
-                        <div class="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
-                            <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                            </svg>
-                            <p class="text-sm">No API accounts configured</p>
-                            <p class="text-xs text-gray-400 mt-1">Add an account below to enable sync functionality</p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Default Settings -->
+                <div class="lg:col-span-2">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Default Settings</h3>
+                    <form method="POST" id="defaults-form" class="space-y-4">
+                        <input type="hidden" name="action" value="set_defaults">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="days" class="block text-sm font-medium text-gray-700 mb-1">Sync Days</label>
+                                <input type="number" id="days" name="days" value="{{ settings.defaults.days }}" class="form-input w-full" aria-label="Number of days for data sync">
+                            </div>
+                            <div>
+                                <label for="page_size" class="block text-sm font-medium text-gray-700 mb-1">Page Size</label>
+                                <input type="number" id="page_size" name="page_size" value="{{ settings.defaults.page_size }}" class="form-input w-full" aria-label="Page size for data sync">
+                            </div>
                         </div>
-                        {% endif %}
-                    </div>
-                    {% if settings.accounts %}
-                    <button type="submit" class="btn-primary" aria-label="Set active account">Set Active Account</button>
-                    {% else %}
-                    <button type="button" class="btn-secondary opacity-50 cursor-not-allowed" disabled aria-label="Set active account">No Accounts Available</button>
-                    {% endif %}
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="direction" class="block text-sm font-medium text-gray-700 mb-1">Direction</label>
+                                <select id="direction" name="direction" class="form-select w-full" aria-label="Direction of data sync">
+                                    <option value="Sent" {% if settings.defaults.direction == 'Sent' %}selected{% endif %}>Sent</option>
+                                    <option value="Received" {% if settings.defaults.direction == 'Received' %}selected{% endif %}>Received</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status Filter</label>
+                                <input type="text" id="status" name="status" value="{{ settings.defaults.status }}" class="form-input w-full" placeholder="Valid,Invalid, etc." aria-label="Filter by document status">
+                            </div>
+                        </div>
+                        <div class="flex justify-start">
+                            <button type="submit" class="btn-primary" aria-label="Save default settings">Save Defaults</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+
+                <!-- Active Account -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Active Account</h3>
+                    <form method="POST" id="active-account-form" class="space-y-4">
+                        <input type="hidden" name="action" value="set_active">
+                        <div>
+                            <label for="active_account" class="block text-sm font-medium text-gray-700 mb-1">Select Account</label>
+                            {% if settings.accounts %}
+                            <select name="active_account" id="active_account" class="form-select w-full" aria-label="Select active account">
+                                {% for acc in settings.accounts %}
+                                <option value="{{ acc.name }}" {% if settings.active_account == acc.name %}selected{% endif %}>{{ acc.name }}</option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                                <svg class="w-6 h-6 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                </svg>
+                                <p class="text-xs">No accounts configured</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if settings.accounts %}
+                        <button type="submit" class="btn-primary w-full" aria-label="Set active account">Set Active Account</button>
+                        {% else %}
+                        <button type="button" class="btn-secondary opacity-50 cursor-not-allowed w-full" disabled aria-label="Set active account">No Accounts Available</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Accounts Management -->
-    <div class="mb-16">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">API Accounts</h2>
-            <p class="text-gray-600">Manage your MyInvois API credentials and connections</p>
-        </div>
-
-        <!-- Accounts Table -->
-        <div class="card p-8 mb-12">
-            <div class="flex items-center justify-between mb-8">
-                <div class="flex items-center space-x-3">
-                    <div class="icon-container w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200">
-                        <svg class="w-6 h-6 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="mb-8">
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <div class="icon-container w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 mr-4">
+                        <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900">Account List</h3>
-                        <p class="text-gray-600 text-sm">Your configured API accounts</p>
+                        <h2 class="text-2xl font-semibold text-gray-900">API Accounts</h2>
+                        <p class="text-gray-600 text-sm">Manage your MyInvois API credentials</p>
                     </div>
                 </div>
                 <button class="btn-primary" onclick="document.getElementById('add-account-form').scrollIntoView({behavior: 'smooth'})">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
-                    Add New Account
+                    Add Account
                 </button>
             </div>
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr>
-                        <th class="text-left font-medium">Name</th>
-                        <th class="text-left font-medium">Client ID</th>
-                        <th class="text-left font-medium">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for acc in settings.accounts %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="py-3">{{ acc.name }}</td>
-                        <td class="py-3 font-mono text-sm">{{ acc.client_id }}</td>
-                        <td class="py-3 space-x-2">
-                            <button class="btn-secondary text-xs px-3 py-1 edit-account-btn" data-account-id="{{ acc.name | replace(' ', '_') }}" aria-label="Edit account {{ acc.name }}">Edit</button>
-                            <form method="POST" class="inline" id="delete-account-form-{{ acc.name | replace(' ', '_') }}">
-                                <input type="hidden" name="action" value="delete_account">
-                                <input type="hidden" name="index" value="{{ loop.index0 }}">
-                                <input type="hidden" name="name" value="{{ acc.name }}">
-                                <button type="submit" class="btn-danger text-xs px-3 py-1" aria-label="Delete account {{ acc.name }}">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+            <!-- Accounts Table -->
+            {% if settings.accounts %}
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left font-medium py-3 px-4">Name</th>
+                            <th class="text-left font-medium py-3 px-4">Client ID</th>
+                            <th class="text-left font-medium py-3 px-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for acc in settings.accounts %}
+                        <tr class="hover:bg-gray-50 border-b border-gray-100">
+                            <td class="py-3 px-4">{{ acc.name }}</td>
+                            <td class="py-3 px-4 font-mono text-sm text-gray-600">{{ acc.client_id }}</td>
+                            <td class="py-3 px-4">
+                                <div class="flex space-x-2">
+                                    <button class="btn-secondary text-xs px-3 py-1 edit-account-btn" data-account-id="{{ acc.name | replace(' ', '_') }}" aria-label="Edit account {{ acc.name }}">Edit</button>
+                                    <form method="POST" class="inline" id="delete-account-form-{{ acc.name | replace(' ', '_') }}">
+                                        <input type="hidden" name="action" value="delete_account">
+                                        <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                        <input type="hidden" name="name" value="{{ acc.name }}">
+                                        <button type="submit" class="btn-danger text-xs px-2 py-1" aria-label="Delete account {{ acc.name }}">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-500">
+                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <p class="text-sm mb-4">No API accounts configured yet</p>
+                <p class="text-xs text-gray-400">Click "Add Account" to get started</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 
-        <!-- Add Account Form -->
-        <div class="card p-8" id="add-account-form">
-            <div class="text-center mb-8">
-                <div class="icon-container w-12 h-12 bg-gradient-to-br from-indigo-100 to-indigo-200 mx-auto mb-4">
-                    <svg class="w-6 h-6 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Add New Account</h3>
+    <!-- Add Account Form -->
+    <div class="card p-6" id="add-account-form">
+        <div class="flex items-center mb-6">
+            <div class="icon-container w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-200 mr-4">
+                <svg class="w-5 h-5 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-900">Add New Account</h2>
                 <p class="text-gray-600 text-sm">Configure a new MyInvois API connection</p>
             </div>
-        <form method="POST" id="add-account-form-element">
+        </div>
+
+        <form method="POST" id="add-account-form-element" class="space-y-6">
             <input type="hidden" name="action" value="add_account">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
-                        <input type="text" id="name" name="name" class="form-input w-full" required aria-label="Account name">
-                    </div>
-                    <div>
-                        <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
-                        <input type="text" id="client_id" name="client_id" class="form-input w-full font-mono text-sm" required aria-label="Client ID">
-                    </div>
-                    <div>
-                        <label for="client_secret" class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
-                        <input type="password" id="client_secret" name="client_secret" class="form-input w-full font-mono text-sm" required aria-label="Client secret">
-                    </div>
-                    <div>
-                        <label for="on_behalf_of" class="block text-sm font-medium text-gray-700 mb-1">On Behalf Of</label>
-                        <input type="text" id="on_behalf_of" name="on_behalf_of" class="form-input w-full" aria-label="On behalf of">
-                    </div>
+
+            <!-- Basic Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+                    <input type="text" id="name" name="name" class="form-input w-full" required aria-label="Account name" placeholder="e.g., Production Account">
                 </div>
-                <div class="space-y-4">
-                    <div>
-                        <label for="token_url" class="block text-sm font-medium text-gray-700 mb-1">Token URL</label>
-                        <input type="text" id="token_url" name="token_url" class="form-input w-full" placeholder="https://..." required aria-label="Token URL">
-                    </div>
-                    <div>
-                        <label for="base_url" class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
-                        <input type="text" id="base_url" name="base_url" class="form-input w-full" placeholder="https://..." required aria-label="Base URL">
-                    </div>
-                    <div>
-                        <label for="scope" class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
-                        <input type="text" id="scope" name="scope" class="form-input w-full" placeholder="InvoicingAPI" aria-label="Scope">
-                    </div>
+                <div>
+                    <label for="on_behalf_of" class="block text-sm font-medium text-gray-700 mb-1">On Behalf Of</label>
+                    <input type="text" id="on_behalf_of" name="on_behalf_of" class="form-input w-full" aria-label="On behalf of" placeholder="Optional">
                 </div>
             </div>
-            <div class="mt-6">
+
+            <!-- Credentials -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
+                    <input type="text" id="client_id" name="client_id" class="form-input w-full font-mono text-sm" required aria-label="Client ID" placeholder="Your client ID">
+                </div>
+                <div>
+                    <label for="client_secret" class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
+                    <input type="password" id="client_secret" name="client_secret" class="form-input w-full font-mono text-sm" required aria-label="Client secret" placeholder="Your client secret">
+                </div>
+            </div>
+
+            <!-- URLs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label for="token_url" class="block text-sm font-medium text-gray-700 mb-1">Token URL</label>
+                    <input type="text" id="token_url" name="token_url" class="form-input w-full" placeholder="https://..." required aria-label="Token URL">
+                </div>
+                <div>
+                    <label for="scope" class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
+                    <input type="text" id="scope" name="scope" class="form-input w-full" placeholder="InvoicingAPI" aria-label="Scope">
+                </div>
+            </div>
+
+            <div>
+                <label for="base_url" class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
+                <input type="text" id="base_url" name="base_url" class="form-input w-full" placeholder="https://..." required aria-label="Base URL">
+            </div>
+
+            <div class="flex justify-end">
                 <button type="submit" class="btn-primary" aria-label="Add account">Add Account</button>
             </div>
         </form>
@@ -210,49 +225,58 @@
     <!-- Edit Modals -->
     {% for acc in settings.accounts %}
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" id="editModal_{{ acc.name | replace(' ', '_') }}">
-        <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-gray-900">Edit Account: {{ acc.name }}</h3>
+                <h2 class="text-2xl font-semibold text-gray-900">Edit Account: {{ acc.name }}</h2>
                 <button type="button" class="text-gray-400 hover:text-gray-600 close-modal text-2xl" data-account-id="{{ acc.name | replace(' ', '_') }}" aria-label="Close modal">&times;</button>
             </div>
-            <form method="POST" id="edit-account-form-{{ acc.name | replace(' ', '_') }}">
+
+            <form method="POST" id="edit-account-form-{{ acc.name | replace(' ', '_') }}" class="space-y-6">
                 <input type="hidden" name="action" value="edit_account">
                 <input type="hidden" name="index" value="{{ loop.index0 }}">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label for="edit_name_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
-                            <input type="text" id="edit_name_{{ acc.name | replace(' ', '_') }}" name="name" value="{{ acc.name }}" class="form-input w-full" required aria-label="Edit account name">
-                        </div>
-                        <div>
-                            <label for="edit_client_id_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
-                            <input type="text" id="edit_client_id_{{ acc.name | replace(' ', '_') }}" name="client_id" value="{{ acc.client_id }}" class="form-input w-full font-mono text-sm" required aria-label="Edit client ID">
-                        </div>
-                        <div>
-                            <label for="edit_client_secret_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
-                            <input type="password" id="edit_client_secret_{{ acc.name | replace(' ', '_') }}" name="client_secret" value="{{ acc.client_secret }}" class="form-input w-full font-mono text-sm" required aria-label="Edit client secret">
-                        </div>
-                        <div>
-                            <label for="edit_on_behalf_of_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">On Behalf Of</label>
-                            <input type="text" id="edit_on_behalf_of_{{ acc.name | replace(' ', '_') }}" name="on_behalf_of" value="{{ acc.on_behalf_of }}" class="form-input w-full" aria-label="Edit on behalf of">
-                        </div>
+
+                <!-- Basic Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit_name_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+                        <input type="text" id="edit_name_{{ acc.name | replace(' ', '_') }}" name="name" value="{{ acc.name }}" class="form-input w-full" required aria-label="Edit account name" placeholder="e.g., Production Account">
                     </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="edit_token_url_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Token URL</label>
-                            <input type="text" id="edit_token_url_{{ acc.name | replace(' ', '_') }}" name="token_url" value="{{ acc.token_url }}" class="form-input w-full" placeholder="https://..." required aria-label="Edit token URL">
-                        </div>
-                        <div>
-                            <label for="edit_base_url_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
-                            <input type="text" id="edit_base_url_{{ acc.name | replace(' ', '_') }}" name="base_url" value="{{ acc.base_url }}" class="form-input w-full" placeholder="https://..." required aria-label="Edit base URL">
-                        </div>
-                        <div>
-                            <label for="edit_scope_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
-                            <input type="text" id="edit_scope_{{ acc.name | replace(' ', '_') }}" name="scope" value="{{ acc.scope }}" class="form-input w-full" placeholder="InvoicingAPI" aria-label="Edit scope">
-                        </div>
+                    <div>
+                        <label for="edit_on_behalf_of_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">On Behalf Of</label>
+                        <input type="text" id="edit_on_behalf_of_{{ acc.name | replace(' ', '_') }}" name="on_behalf_of" value="{{ acc.on_behalf_of }}" class="form-input w-full" aria-label="Edit on behalf of" placeholder="Optional">
                     </div>
                 </div>
-                <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+
+                <!-- Credentials -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit_client_id_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
+                        <input type="text" id="edit_client_id_{{ acc.name | replace(' ', '_') }}" name="client_id" value="{{ acc.client_id }}" class="form-input w-full font-mono text-sm" required aria-label="Edit client ID" placeholder="Your client ID">
+                    </div>
+                    <div>
+                        <label for="edit_client_secret_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
+                        <input type="password" id="edit_client_secret_{{ acc.name | replace(' ', '_') }}" name="client_secret" value="{{ acc.client_secret }}" class="form-input w-full font-mono text-sm" required aria-label="Edit client secret" placeholder="Your client secret">
+                    </div>
+                </div>
+
+                <!-- URLs -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="edit_token_url_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Token URL</label>
+                        <input type="text" id="edit_token_url_{{ acc.name | replace(' ', '_') }}" name="token_url" value="{{ acc.token_url }}" class="form-input w-full" placeholder="https://..." required aria-label="Edit token URL">
+                    </div>
+                    <div>
+                        <label for="edit_scope_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
+                        <input type="text" id="edit_scope_{{ acc.name | replace(' ', '_') }}" name="scope" value="{{ acc.scope }}" class="form-input w-full" placeholder="InvoicingAPI" aria-label="Edit scope">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="edit_base_url_{{ acc.name | replace(' ', '_') }}" class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
+                    <input type="text" id="edit_base_url_{{ acc.name | replace(' ', '_') }}" name="base_url" value="{{ acc.base_url }}" class="form-input w-full" placeholder="https://..." required aria-label="Edit base URL">
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                     <button type="button" class="btn-secondary close-modal" data-account-id="{{ acc.name | replace(' ', '_') }}" aria-label="Cancel edit">Cancel</button>
                     <button type="submit" class="btn-primary" aria-label="Save account changes">Save Changes</button>
                 </div>
