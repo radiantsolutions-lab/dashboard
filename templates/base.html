@@ -59,7 +59,7 @@
         }
 
         /* DARK MODE THEME */
-        [data-theme="dark"] {
+        html[data-theme="dark"] {
             /* Theme colors - DARK MODE */
             --bg-primary: #0a0a0a;
             --bg-secondary: #1a1a1a;
@@ -134,8 +134,8 @@
         }
 
         .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -289,9 +289,9 @@
 
         .dataTables_wrapper .dataTables_length.custom select,
         .dataTables_wrapper .dataTables_filter.custom input {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
+            background-color: var(--input-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
             border-radius: 6px;
             padding: 6px 12px;
             font-size: 14px;
@@ -307,8 +307,8 @@
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
             color: var(--text-secondary) !important;
             border-radius: 6px;
             margin: 0 2px;
@@ -318,14 +318,14 @@
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background-color: var(--bg-tertiary);
-            border-color: var(--border-color);
+            background-color: var(--bg-tertiary) !important;
+            border-color: var(--border-color) !important;
             color: var(--text-primary) !important;
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background-color: var(--apple-blue);
-            border-color: var(--apple-blue);
+            background-color: var(--apple-blue) !important;
+            border-color: var(--apple-blue) !important;
             color: var(--apple-white) !important;
         }
 
@@ -601,16 +601,16 @@
         .dataTables_info,
         .dataTables_paginate {
             font-size: 14px !important;
-            color: #6b7280 !important;
+            color: var(--text-muted) !important;
         }
 
         .paginate_button {
             padding: 6px 12px !important;
             margin: 0 2px !important;
-            border: 1px solid #d1d5db !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 6px !important;
-            background: white !important;
-            color: #374151 !important;
+            background: var(--card-bg) !important;
+            color: var(--text-secondary) !important;
             cursor: pointer !important;
             transition: all 0.2s !important;
             flex: none !important;
@@ -622,8 +622,8 @@
         }
 
         .paginate_button:hover {
-            background: #f3f4f6 !important;
-            border-color: #9ca3af !important;
+            background: var(--bg-tertiary) !important;
+            border-color: var(--border-color) !important;
         }
 
         .paginate_button.current {
