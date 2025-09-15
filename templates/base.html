@@ -160,8 +160,8 @@
 
         .loading-spinner {
             display: none;
-            border: 2px solid var(--notion-light-grey);
-            border-top: 2px solid var(--notion-blue);
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--apple-blue);
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -171,8 +171,8 @@
 
         .table-loading-spinner {
             display: none;
-            border: 2px solid var(--notion-light-grey);
-            border-top: 2px solid var(--notion-blue);
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--apple-blue);
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -193,24 +193,24 @@
 
         #docsTable td, #docsTable th {
             font-size: 12px;
-            border-bottom: 1px solid var(--notion-light-grey);
+            border-bottom: 1px solid var(--border-color);
             padding: 12px 16px;
             text-align: left;
         }
 
         #docsTable th {
-            background: var(--notion-white);
-            color: var(--notion-grey);
+            background: var(--card-bg);
+            color: var(--text-secondary);
             font-weight: 600;
             position: sticky;
             top: 0;
             z-index: 5;
             text-transform: none;
-            border-top: 1px solid var(--notion-light-grey);
+            border-top: 1px solid var(--border-color);
         }
 
         #docsTable tr:hover {
-            background-color: var(--notion-off-white);
+            background-color: var(--bg-tertiary);
         }
 
         /* Status badges with crisp icons */
@@ -283,15 +283,15 @@
         .dataTables_wrapper .dataTables_filter.custom label {
             margin-right: 0.5rem;
             font-size: 14px;
-            color: var(--notion-grey);
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
         .dataTables_wrapper .dataTables_length.custom select,
         .dataTables_wrapper .dataTables_filter.custom input {
-            background-color: var(--notion-white);
-            border: 1px solid var(--notion-light-grey);
-            color: var(--notion-dark-grey);
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
             border-radius: 6px;
             padding: 6px 12px;
             font-size: 14px;
@@ -301,15 +301,15 @@
 
         .dataTables_wrapper .dataTables_length.custom select:focus,
         .dataTables_wrapper .dataTables_filter.custom input:focus {
-            border-color: var(--notion-blue);
+            border-color: var(--apple-blue);
             outline: none;
             box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button {
-            background-color: var(--notion-white);
-            border: 1px solid var(--notion-light-grey);
-            color: var(--notion-grey) !important;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary) !important;
             border-radius: 6px;
             margin: 0 2px;
             padding: 6px 12px;
@@ -318,15 +318,15 @@
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background-color: var(--notion-light-grey);
-            border-color: var(--notion-grey);
-            color: var(--notion-dark-grey) !important;
+            background-color: var(--bg-tertiary);
+            border-color: var(--border-color);
+            color: var(--text-primary) !important;
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background-color: var(--notion-blue);
-            border-color: var(--notion-blue);
-            color: var(--notion-white) !important;
+            background-color: var(--apple-blue);
+            border-color: var(--apple-blue);
+            color: var(--apple-white) !important;
         }
 
         /* Icon styling */
@@ -343,7 +343,7 @@
         }
 
         .icon-button:hover {
-            background-color: var(--notion-light-grey);
+            background-color: var(--bg-tertiary);
             transform: translateY(-1px);
         }
 
@@ -440,8 +440,8 @@
 
         .btn-secondary {
             background: transparent;
-            color: var(--apple-dark-grey);
-            border: 1px solid rgba(0, 0, 0, 0.2);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 10px 20px;
             font-size: 14px;
@@ -451,8 +451,8 @@
         }
 
         .btn-secondary:hover {
-            background: var(--apple-light-grey);
-            border-color: rgba(0, 0, 0, 0.3);
+            background: var(--bg-tertiary);
+            border-color: var(--border-color);
             transform: translateY(-1px);
         }
 
@@ -486,8 +486,8 @@
 
         /* Highlight.js adjustments - Bright JSON syntax highlighting */
         pre code.hljs {
-            background: var(--notion-white);
-            border: 1px solid var(--notion-light-grey);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 16px;
             font-size: 12px;
@@ -723,17 +723,27 @@
         .stats-card h3 {
             font-size: 32px;
             font-weight: 700;
-            color: var(--apple-dark-grey);
+            color: var(--text-primary);
             margin-bottom: 6px;
             letter-spacing: -0.02em;
         }
 
         .stats-card p {
-            color: var(--apple-grey);
+            color: var(--text-muted);
             font-size: 14px;
             font-weight: 500;
             margin: 0;
         }
+
+        /* Theme-aware utility classes for templates */
+        .theme-text-primary { color: var(--text-primary); }
+        .theme-text-secondary { color: var(--text-secondary); }
+        .theme-text-muted { color: var(--text-muted); }
+        .theme-bg-primary { background-color: var(--bg-primary); }
+        .theme-bg-secondary { background-color: var(--bg-secondary); }
+        .theme-bg-tertiary { background-color: var(--bg-tertiary); }
+        .theme-border { border-color: var(--border-color); }
+        .theme-hover-bg { background-color: var(--bg-tertiary); }
     </style>
 </head>
 <body class="antialiased">

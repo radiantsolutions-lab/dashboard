@@ -3,19 +3,19 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 py-12">
     <div class="text-center mb-16">
-        <h1 class="text-5xl font-bold text-gray-900 mb-4 tracking-tight">E-Invoice Dashboard</h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">Active Account: <span class="font-semibold text-gray-900">{{ active_account }}</span></p>
+        <h1 class="text-5xl font-bold theme-text-primary mb-4 tracking-tight">E-Invoice Dashboard</h1>
+        <p class="text-xl theme-text-muted max-w-2xl mx-auto">Active Account: <span class="font-semibold theme-text-primary">{{ active_account }}</span></p>
     </div>
 
     <!-- Filters Section -->
     <div class="card mb-12 p-8 filter-section hidden">
         <div class="text-center mb-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-2">Filter Documents</h2>
-            <p class="text-gray-600">Narrow down your invoice results</p>
+            <h2 class="text-2xl font-semibold theme-text-primary mb-2">Filter Documents</h2>
+            <p class="theme-text-muted">Narrow down your invoice results</p>
         </div>
         <form method="POST" id="filter-form" class="flex flex-col lg:flex-row gap-6 items-end justify-center">
             <div class="flex-1 max-w-xs">
-                <label for="status_filter" class="block text-sm font-medium text-gray-700 mb-2">Document Status</label>
+                <label for="status_filter" class="block text-sm font-medium theme-text-secondary mb-2">Document Status</label>
                 <select name="status_filter" id="status_filter" class="form-select w-full text-center" aria-label="Filter by status">
                     <option value="">All Statuses</option>
                     {% for status in status_options %}
@@ -24,7 +24,7 @@
                 </select>
             </div>
             <div class="flex-1 max-w-xs">
-                <label for="date_filter" class="block text-sm font-medium text-gray-700 mb-2">Submission Date</label>
+                <label for="date_filter" class="block text-sm font-medium theme-text-secondary mb-2">Submission Date</label>
                 <select name="date_filter" id="date_filter" class="form-select w-full text-center" aria-label="Filter by date">
                     <option value="">All Dates</option>
                     {% for date in date_options %}
@@ -33,11 +33,11 @@
                 </select>
             </div>
             <div class="flex-1 max-w-xs">
-                <label for="from_date" class="block text-sm font-medium text-gray-700 mb-2">From Submission Date</label>
+                <label for="from_date" class="block text-sm font-medium theme-text-secondary mb-2">From Submission Date</label>
                 <input type="date" name="from_date" id="from_date" class="form-input w-full" value="{{ from_date }}" aria-label="Filter from submission date">
             </div>
             <div class="flex-1 max-w-xs">
-                <label for="to_date" class="block text-sm font-medium text-gray-700 mb-2">To Submission Date</label>
+                <label for="to_date" class="block text-sm font-medium theme-text-secondary mb-2">To Submission Date</label>
                 <input type="date" name="to_date" id="to_date" class="form-input w-full" value="{{ to_date }}" aria-label="Filter to submission date">
             </div>
             <div class="flex gap-3">
@@ -50,8 +50,8 @@
     <!-- Summary Statistics -->
     <div class="mb-12">
         <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">Document Overview</h2>
-            <p class="text-gray-600">Real-time statistics of your e-invoice documents</p>
+            <h2 class="text-3xl font-bold theme-text-primary mb-2">Document Overview</h2>
+            <p class="theme-text-muted">Real-time statistics of your e-invoice documents</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
         <div class="stats-card">
@@ -62,8 +62,8 @@
                     </svg>
                 </div>
             </div>
-            <h3 class="text-3xl font-bold text-gray-900">{{ totals.total }}</h3>
-            <p class="text-gray-600">Total Documents</p>
+            <h3 class="text-3xl font-bold theme-text-primary">{{ totals.total }}</h3>
+            <p class="theme-text-muted">Total Documents</p>
         </div>
         <div class="stats-card">
             <div class="flex items-center justify-between mb-4">
@@ -74,7 +74,7 @@
                 </div>
             </div>
             <h3 class="text-3xl font-bold text-green-600">{{ totals.valid }}</h3>
-            <p class="text-gray-600">Valid</p>
+            <p class="theme-text-muted">Valid</p>
         </div>
         <div class="stats-card">
             <div class="flex items-center justify-between mb-4">
@@ -85,7 +85,7 @@
                 </div>
             </div>
             <h3 class="text-3xl font-bold text-red-600">{{ totals.invalid }}</h3>
-            <p class="text-gray-600">Invalid</p>
+            <p class="theme-text-muted">Invalid</p>
         </div>
         <div class="stats-card">
             <div class="flex items-center justify-between mb-4">
@@ -96,7 +96,7 @@
                 </div>
             </div>
             <h3 class="text-3xl font-bold text-yellow-600">{{ totals.submitted }}</h3>
-            <p class="text-gray-600">Submitted</p>
+            <p class="theme-text-muted">Submitted</p>
         </div>
         <div class="stats-card">
             <div class="flex items-center justify-between mb-4">
@@ -106,21 +106,21 @@
                     </svg>
                 </div>
             </div>
-            <h3 class="text-3xl font-bold text-gray-600">{{ totals.cancelled }}</h3>
-            <p class="text-gray-600">Cancelled</p>
+            <h3 class="text-3xl font-bold theme-text-secondary">{{ totals.cancelled }}</h3>
+            <p class="theme-text-muted">Cancelled</p>
         </div>
     </div>
 
     <!-- Documents Table -->
     <div class="card p-8" style="margin-top: 4rem;">
         <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">Document Records</h2>
-            <p class="text-gray-600">Detailed view of all your e-invoice documents</p>
+            <h2 class="text-3xl font-bold theme-text-primary mb-2">Document Records</h2>
+            <p class="theme-text-muted">Detailed view of all your e-invoice documents</p>
         </div>
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
                 <div class="dataTables_length custom flex items-center">
-                    <label for="table-length" class="text-sm font-medium text-gray-700 mr-3">Show entries:</label>
+                    <label for="table-length" class="text-sm font-medium theme-text-secondary mr-3">Show entries:</label>
                     <select id="table-length" name="length" class="form-select">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -129,7 +129,7 @@
                     </select>
                 </div>
                 <div class="dataTables_filter custom flex items-center">
-                    <label for="table-search" class="text-sm font-medium text-gray-700 mr-3">Search:</label>
+                    <label for="table-search" class="text-sm font-medium theme-text-secondary mr-3">Search:</label>
                     <input type="search" id="table-search" name="table-search" class="form-input" placeholder="Search documents..." autocomplete="off">
                 </div>
             </div>
@@ -153,7 +153,7 @@
                     </thead>
                     <tbody>
                         {% for row in table_data %}
-                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <tr class="hover:theme-hover-bg transition-colors duration-200">
                             {% for col in available_columns %}
                             <td>
                                 {% if col == 'UUID' %}
