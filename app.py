@@ -45,8 +45,10 @@ def load_settings():
     try:
         settings = {}
         app_settings = AppSettings.query.all()
+        logger.info(f"Loading {len(app_settings)} settings from database")
 
         for setting in app_settings:
+            logger.info(f"Loading setting: {setting.key} = {setting.value}")
             if '.' in setting.key:
                 # Nested settings like defaults.days
                 keys = setting.key.split('.')
@@ -61,7 +63,7 @@ def load_settings():
                 except (json.JSONDecodeError, TypeError):
                     settings[setting.key] = setting.value
 
-        logger.info("Settings loaded from database successfully")
+        logger.info(f"Settings loaded successfully: {settings}")
         return settings
     except Exception as e:
         logger.error(f"Error loading settings from database: {str(e)}")
@@ -70,6 +72,7 @@ def load_settings():
 def save_settings(settings):
     """Save settings to database"""
     try:
+        logger.info(f"Saving settings: {settings}")
         # Clear existing settings
         AppSettings.query.delete()
 
@@ -78,7 +81,10 @@ def save_settings(settings):
             if isinstance(value, dict):
                 # Handle nested settings
                 for sub_key, sub_value in value.items():
-                    setting = AppSettings(key=f"{key}.{sub_key}", value=str(sub_value))
+                    setting_key = f"{key}.{sub_key}"
+                    setting_value = str(sub_value)
+                    logger.info(f"Saving setting: {setting_key} = {setting_value}")
+                    setting = AppSettings(key=setting_key, value=setting_value)
                     db.session.add(setting)
             else:
                 # Handle simple settings
@@ -86,11 +92,17 @@ def save_settings(settings):
                     setting_value = json.dumps(value)
                 else:
                     setting_value = str(value)
+                logger.info(f"Saving setting: {key} = {setting_value}")
                 setting = AppSettings(key=key, value=setting_value)
                 db.session.add(setting)
 
         db.session.commit()
         logger.info("Settings saved to database successfully")
+
+        # Verify what was saved
+        saved_settings = AppSettings.query.all()
+        logger.info(f"Verified saved settings: {[(s.key, s.value) for s in saved_settings]}")
+
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error saving settings to database: {str(e)}")
@@ -327,9 +339,11 @@ def settings_page():
                 settings['active_account'] = None if not settings['accounts'] else settings['accounts'][0]['name']
         elif action == 'set_active':
             active_account_value = request.form['active_account']
-            logger.info(f"Setting active account to: {active_account_value}")
+            logger.info(f"Setting active account to: '{active_account_value}'")
+            logger.info(f"Available accounts: {[acc.get('name') for acc in settings.get('accounts', [])]}")
             settings['active_account'] = active_account_value
-            logger.info(f"Active account set successfully. Current settings: {settings}")
+            logger.info(f"Active account set successfully. Current settings active_account: '{settings.get('active_account')}'")
+            logger.info(f"Full settings after update: {settings}")
         elif action == 'set_defaults':
             settings['defaults'] = {
                 'days': int(request.form['days']),
