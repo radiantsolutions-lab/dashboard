@@ -45,11 +45,16 @@
             --nav-bg: var(--apple-white);
             --input-bg: var(--apple-white);
 
-            /* Modern shadows and effects */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            /* Theme-aware shadows and effects */
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 1px 2px 0 var(--shadow-color);
+            --shadow-md: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            /* Theme-aware focus and interaction colors */
+            --focus-color: rgba(0, 122, 204, 0.1);
+            --border-color-light: rgba(0, 0, 0, 0.1);
 
             /* Modern border radius */
             --radius-sm: 8px;
@@ -58,25 +63,30 @@
             --radius-xl: 20px;
         }
 
-        /* DARK MODE THEME */
+        /* DARK MODE THEME - Railway.com inspired */
         html[data-theme="dark"] {
-            /* Theme colors - DARK MODE */
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --bg-tertiary: #2a2a2a;
-            --text-primary: #ffffff;
-            --text-secondary: #e5e5e5;
-            --text-muted: #a3a3a3;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --card-bg: #1a1a1a;
-            --nav-bg: #1a1a1a;
-            --input-bg: #2a2a2a;
+            /* Railway-inspired dark theme colors */
+            --bg-primary: #000000;      /* Pure black background */
+            --bg-secondary: #0f0f0f;    /* Slightly lighter black */
+            --bg-tertiary: #1a1a1a;     /* Dark gray for cards */
+            --text-primary: #ffffff;    /* Pure white text */
+            --text-secondary: #f0f0f0;  /* Off-white for secondary text */
+            --text-muted: #a0a0a0;      /* Muted gray for labels */
+            --border-color: #333333;   /* Dark gray borders */
+            --card-bg: #0f0f0f;         /* Dark card backgrounds */
+            --nav-bg: #000000;          /* Black navigation */
+            --input-bg: #1a1a1a;        /* Dark input backgrounds */
 
-            /* Dark mode shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            /* Dark mode shadows and effects */
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 1px 2px 0 var(--shadow-color);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+
+            /* Dark mode focus colors */
+            --focus-color: rgba(0, 122, 204, 0.2);
+            --border-color-light: rgba(255, 255, 255, 0.1);
         }
 
         body {
@@ -301,9 +311,9 @@
 
         .dataTables_wrapper .dataTables_length.custom select:focus,
         .dataTables_wrapper .dataTables_filter.custom input:focus {
-            border-color: var(--apple-blue);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+            border-color: var(--apple-blue) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px var(--focus-color) !important;
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -383,7 +393,7 @@
         .form-input:focus {
             border-color: var(--apple-blue);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+            box-shadow: 0 0 0 3px var(--focus-color);
         }
 
         .form-select {
@@ -399,7 +409,7 @@
         .form-select:focus {
             border-color: var(--apple-blue);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+            box-shadow: 0 0 0 3px var(--focus-color);
         }
 
         /* Modern Apple-style button styling */
@@ -744,6 +754,35 @@
         .theme-bg-tertiary { background-color: var(--bg-tertiary); }
         .theme-border { border-color: var(--border-color); }
         .theme-hover-bg { background-color: var(--bg-tertiary); }
+
+        /* Override Tailwind classes in dark mode for Railway.com-like theming */
+        html[data-theme="dark"] .text-gray-700 {
+            color: var(--text-secondary) !important;
+        }
+
+        html[data-theme="dark"] .text-gray-600 {
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .text-gray-900 {
+            color: var(--text-primary) !important;
+        }
+
+        html[data-theme="dark"] .bg-gray-100 {
+            background-color: var(--bg-tertiary) !important;
+        }
+
+        html[data-theme="dark"] .hover\:bg-gray-100:hover {
+            background-color: var(--bg-tertiary) !important;
+        }
+
+        html[data-theme="dark"] .text-gray-400 {
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .bg-gray-50 {
+            background-color: var(--bg-secondary) !important;
+        }
     </style>
 </head>
 <body class="antialiased">
