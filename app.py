@@ -479,8 +479,7 @@ def settings_page():
                 'days': int(request.form['days']) if request.form['days'] else 10,
                 'direction': request.form['direction'],
                 'status': request.form['status'],
-                'page_size': int(request.form['page_size']) if request.form['page_size'] else 100,
-                'data_folder': request.form['data_folder']
+                'page_size': int(request.form['page_size']) if request.form['page_size'] else 100
             }
         save_settings(settings)
         return redirect(url_for('settings_page'))
@@ -710,21 +709,12 @@ def dashboard():
     cancelled = len([d for d in documents if d.status == 'Cancelled'])
     totals = {'total': total_docs, 'valid': valid, 'invalid': invalid, 'submitted': submitted_count, 'cancelled': cancelled}
 
-    # Table data with reordered columns (match template expectations)
+    # Table data with selected columns only (UI-friendly display names)
     column_mapping = {
-        'internalId': 'internal_id',
-        'uuid': 'uuid',
-        'dateTimeReceived': 'date_time_received',
-        'dateTimeValidated': 'date_time_validated',
-        'status': 'status',
-        'typeName': 'type_name',
-        'typeVersionName': 'type_version_name',
-        'submissionUID': 'submission_uid',
-        'supplierName': 'supplier_name',
-        'buyerName': 'buyer_name',
-        'total': 'total',
-        'longId': 'long_id',
-        'submissionChannel': 'submission_channel'
+        'Invoice': 'internal_id',
+        'UUID': 'uuid',
+        'Status': 'status',
+        'Type': 'type_name'
     }
 
     available_columns = list(column_mapping.keys())

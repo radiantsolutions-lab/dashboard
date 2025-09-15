@@ -147,7 +147,7 @@
                     <thead>
                         <tr>
                             {% for col in available_columns %}
-                            <th class="text-left font-medium">{{ col|title }}</th>
+                            <th class="text-left font-medium">{{ col }}</th>
                             {% endfor %}
                         </tr>
                     </thead>
@@ -156,9 +156,9 @@
                         <tr class="hover:bg-gray-50 transition-colors duration-200">
                             {% for col in available_columns %}
                             <td>
-                                {% if col == 'uuid' %}
+                                {% if col == 'UUID' %}
                                 <a href="/detail/{{ row[col] }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium" aria-label="View details for {{ row[col] }}">{{ row[col] }}</a>
-                                {% elif col == 'status' %}
+                                {% elif col == 'Status' %}
                                 <span class="status-badge status-{{ row[col]|lower }}">
                                     {% if row[col]|lower == 'valid' %}
                                         <svg class="status-icon" fill="currentColor" viewBox="0 0 24 24">
