@@ -272,6 +272,22 @@ def test_route():
     logger.info("Test route accessed")
     return jsonify({"message": "Flask server is running!"})
 
+@app.route('/debug-settings')
+@login_required
+def debug_settings():
+    """Debug endpoint to check current settings"""
+    try:
+        settings = load_settings()
+        return jsonify({
+            "settings_loaded": settings is not None,
+            "accounts_count": len(settings.get('accounts', [])) if settings else 0,
+            "accounts": [{"name": acc.get('name')} for acc in settings.get('accounts', [])] if settings else [],
+            "active_account": settings.get('active_account') if settings else None,
+            "defaults": settings.get('defaults') if settings else {}
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings_page():
@@ -310,7 +326,10 @@ def settings_page():
             if settings['active_account'] == request.form['name']:
                 settings['active_account'] = None if not settings['accounts'] else settings['accounts'][0]['name']
         elif action == 'set_active':
-            settings['active_account'] = request.form['active_account']
+            active_account_value = request.form['active_account']
+            logger.info(f"Setting active account to: {active_account_value}")
+            settings['active_account'] = active_account_value
+            logger.info(f"Active account set successfully. Current settings: {settings}")
         elif action == 'set_defaults':
             settings['defaults'] = {
                 'days': int(request.form['days']),
